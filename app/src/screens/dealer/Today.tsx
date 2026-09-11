@@ -2,15 +2,32 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type OrderStatus } from '../../lib/db';
-import { bs, money, resolveStatus, allBalances, dueLabel, stamp } from '../../lib/domain';
-import { useTenant, useTenantId, usePending, useOnline } from '../../lib/hooks';
-import { Sync, NoWifi, Plus, Clock, Van } from '../../ui/icons';
+import { bs, money, resolveStatus, allBalances, dueLabel, setMeta, stamp } from '../../lib/domain';
+import { useTenant, useTenantId, usePending, useOnline, useMeta } from '../../lib/hooks';
+import { Sync, NoWifi, Plus, Clock, Van, Check, Chevron } from '../../ui/icons';
 
 type Tab = 'new' | 'billed' | 'out' | 'done';
 
 const TAB_OF: Record<OrderStatus, Tab | null> = {
   placed: 'new', confirmed: 'billed', out_for_delivery: 'out', delivered: 'done', cancelled: null,
 };
+
+type Row = {
+  shop: string; deliverBy?: number; placedAt: number; amount: number;
+};
+
+type SortId = 'due' | 'newest' | 'oldest' | 'amount' | 'shop';
+
+/** An order with no promised deadline sorts after every order that has one. */
+const FAR = Number.MAX_SAFE_INTEGER;
+
+const SORTS: { id: SortId; label: string; hint: string; cmp: (a: Row, b: Row) => number }[] = [
+  { id: 'due', label: 'Delivery due', hint: 'soonest deadline first', cmp: (a, b) => (a.deliverBy ?? FAR) - (b.deliverBy ?? FAR) },
+  { id: 'newest', label: 'Order time · newest', hint: 'what just came in', cmp: (a, b) => b.placedAt - a.placedAt },
+  { id: 'oldest', label: 'Order time · oldest', hint: 'waiting longest first', cmp: (a, b) => a.placedAt - b.placedAt },
+  { id: 'amount', label: 'Amount', hint: 'biggest order first', cmp: (a, b) => b.amount - a.amount },
+  { id: 'shop', label: 'Shop name', hint: 'A to Z', cmp: (a, b) => a.shop.localeCompare(b.shop) },
+];
 
 export default function Today() {
   const nav = useNavigate();
@@ -19,6 +36,10 @@ export default function Today() {
   const pending = usePending();
   const online = useOnline();
   const [tab, setTab] = useState<Tab>('new');
+  const [sortOpen, setSortOpen] = useState(false);
+  // Kept in Dexie so the choice survives making a bill and coming back.
+  const sortId = useMeta<SortId>('orderSort') ?? 'due';
+  const sort = SORTS.find((s) => s.id === sortId) ?? SORTS[0];
 
   const data = useLiveQuery(async () => {
     if (!tenantId) return null;
@@ -68,7 +89,7 @@ export default function Today() {
     const t = TAB_OF[r.status];
     if (t) counts[t] += 1;
   }
-  const visible = (data?.rows ?? []).filter((r) => TAB_OF[r.status] === tab);
+  const visible = (data?.rows ?? []).filter((r) => TAB_OF[r.status] === tab).sort(sort.cmp);
 
   return (
     <>
@@ -125,7 +146,19 @@ export default function Today() {
             ))}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: -4 }}>
+            <span className="lbl">{visible.length} order{visible.length === 1 ? '' : 's'}</span>
+            <button
+              onClick={() => setSortOpen(true)}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', border: '1px solid var(--line)', background: 'var(--card)' }}
+            >
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Sort</span>
+              <span style={{ fontSize: 12, fontWeight: 600 }}>{sort.label}</span>
+              <span style={{ display: 'flex', transform: 'rotate(90deg)' }}><Chevron size={13} color="var(--muted)" /></span>
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: -6 }}>
             {visible.map((r) => {
               const hot = r.status === 'placed';
               const tone = hot ? 'var(--ink)' : r.status === 'confirmed' ? 'var(--ok)' : r.status === 'out_for_delivery' ? 'var(--warn)' : '#c9c9c2';
@@ -183,6 +216,31 @@ export default function Today() {
           </button>
         </div>
       </div>
+
+      {sortOpen && (
+        <div className="sheet-back" onClick={() => setSortOpen(false)}>
+          <div className="sheet" onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: 16, fontWeight: 600 }}>Sort orders by</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 1, background: 'var(--line)' }}>
+              {SORTS.map((o) => (
+                <button
+                  key={o.id}
+                  onClick={() => { setMeta('orderSort', o.id); setSortOpen(false); }}
+                  className="row"
+                  style={{ textAlign: 'left' }}
+                >
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <span style={{ fontSize: 14.5, fontWeight: o.id === sortId ? 600 : 500 }}>{o.label}</span>
+                    <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>{o.hint}</span>
+                  </div>
+                  {o.id === sortId && <Check size={18} color="var(--ok)" />}
+                </button>
+              ))}
+            </div>
+            <button className="btn ghost" onClick={() => setSortOpen(false)}>Close</button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
