@@ -67,7 +67,7 @@ export default function Reports() {
 
       <div className="scroll">
         <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div className="card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="card" style={{ padding: 19, display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <span className="lbl">Sales, last 7 days</span>
@@ -114,7 +114,7 @@ export default function Reports() {
             </svg>
           </div>
 
-          <div className="card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 13 }}>
+          <div className="card" style={{ padding: 19, display: 'flex', flexDirection: 'column', gap: 13 }}>
             <span className="lbl">Best sellers this week</span>
             {(data?.sellers ?? []).map((s, i) => (
               <div key={s.name} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>

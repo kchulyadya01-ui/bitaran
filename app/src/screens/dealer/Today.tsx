@@ -137,13 +137,13 @@ export default function Today() {
       <MoreMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <div className="scroll">
-        <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <div style={{ flex: 1, background: 'var(--ink)', color: '#fff', padding: 14, borderRadius: 18 }}>
+        <div style={{ padding: 19, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <div style={{ flex: 1, background: 'var(--ink)', color: '#fff', padding: 18, borderRadius: 18 }}>
               <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--faint)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Orders today</div>
               <div className="num" style={{ fontSize: 34, fontWeight: 600, lineHeight: 1, marginTop: 4 }}>{data?.todaysOrders.length ?? 0}</div>
             </div>
-            <div className="card" style={{ flex: 1.4, padding: 14 }}>
+            <div className="card" style={{ flex: 1.4, padding: 18 }}>
               <div className="lbl">To collect</div>
               <div className="num" style={{ fontSize: 26, fontWeight: 600, lineHeight: 1, marginTop: 4 }}>{money(data?.toCollect ?? 0)}</div>
               {!!data?.overdue && (

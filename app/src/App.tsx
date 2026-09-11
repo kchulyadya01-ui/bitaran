@@ -5,6 +5,7 @@ import { useAppRole } from './lib/hooks';
 import { Box, Receipt, Pin, Grid, Bars, Shop, Clock, Person, Van } from './ui/icons';
 
 import Welcome from './screens/Welcome';
+import Splash from './screens/Splash';
 
 import Today from './screens/dealer/Today';
 import Billing from './screens/dealer/Billing';
@@ -66,13 +67,7 @@ function Shell() {
   const { pathname } = useLocation();
   const role = useAppRole();
 
-  if (role === 'loading') {
-    return (
-      <div className="frame" style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <span className="lbl">loading</span>
-      </div>
-    );
-  }
+  if (role === 'loading') return <Splash />;
 
   const onWelcome = pathname === '/welcome';
   const customerPath = pathname.startsWith('/shop');
@@ -132,25 +127,27 @@ function Shell() {
 }
 
 export default function App() {
-  const [ready, setReady] = useState(false);
+  const [seeded, setSeeded] = useState(false);
+  // The logo shows for at least this long even when seeding is instant
+  // (every run after the first) — otherwise it just flashes.
+  const [minTimePassed, setMinTimePassed] = useState(false);
+
   useEffect(() => {
     seedIfEmpty()
-      .then(() => setReady(true))
+      .then(() => setSeeded(true))
       .catch((e) => {
         console.error(e);
-        setReady(true);
+        setSeeded(true);
       });
     if ('storage' in navigator && 'persist' in navigator.storage) {
       navigator.storage.persist().catch(() => {});
     }
+    const t = setTimeout(() => setMinTimePassed(true), 1100);
+    return () => clearTimeout(t);
   }, []);
-  if (!ready) {
-    return (
-      <div className="frame" style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <span className="lbl">loading</span>
-      </div>
-    );
-  }
+
+  if (!seeded || !minTimePassed) return <Splash />;
+
   return (
     <HashRouter>
       <Shell />

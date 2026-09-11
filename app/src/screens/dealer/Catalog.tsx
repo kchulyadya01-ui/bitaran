@@ -204,7 +204,7 @@ export default function Catalog() {
         <div style={{ padding: '0 16px 16px' }}>
           <button
             onClick={() => { setSegName(''); setSheet({ kind: 'segment' }); }}
-            style={{ width: '100%', border: '1.5px dashed #b9b9b2', padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}
+            style={{ width: '100%', border: '1.5px dashed #b9b9b2', padding: 19, display: 'flex', alignItems: 'center', gap: 12 }}
           >
             <div style={{ width: 38, height: 38, background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Grid size={18} color="#fff" />

@@ -59,7 +59,7 @@ export default function SyncScreen() {
       </header>
 
       <div className="scroll">
-        <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ padding: 19, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div className="card" style={{ padding: '15px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
             <span className="num" style={{ fontSize: 34, fontWeight: 600, lineHeight: 1 }}>{items.length}</span>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>

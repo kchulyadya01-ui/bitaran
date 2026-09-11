@@ -40,7 +40,7 @@ export default function Incoming() {
       </header>
 
       <div className="scroll">
-        <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ padding: 19, display: 'flex', flexDirection: 'column', gap: 12 }}>
           {pending.map((inc, idx) => {
             const today = inc.daysAway <= 0;
             const soon = inc.daysAway > 0 && inc.daysAway <= 3;

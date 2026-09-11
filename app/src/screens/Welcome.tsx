@@ -1,6 +1,6 @@
 import { setMeta } from '../lib/db';
 import { useTenant } from '../lib/hooks';
-import { Van, Shop, Chevron } from '../ui/icons';
+import { Van } from '../ui/icons';
 
 /**
  * First run: the app is two products sharing one database. Pick a side and the
@@ -13,79 +13,60 @@ export default function Welcome() {
   const choose = (role: 'supplier' | 'customer') => setMeta('appRole', role);
 
   return (
-    <>
-      <header className="topbar" style={{ background: 'var(--ink)', borderBottom: 'none', flexDirection: 'column', alignItems: 'stretch', gap: 16, color: '#fff', paddingBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Van size={22} color="#fff" />
-          <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>Bitaran</span>
+    <div
+      style={{
+        flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+        background: 'radial-gradient(circle at 30% 18%, #2b3138 0%, var(--ink) 55%)',
+        position: 'relative', overflow: 'hidden',
+      }}
+    >
+      {/* No product photography to draw on here — a soft brand wash and a
+          watermark of the van mark stand in for the hero image. */}
+      <div style={{ position: 'absolute', top: '8%', left: '50%', transform: 'translateX(-50%)' }}>
+        <Van size={340} color="rgba(255,255,255,0.05)" w={1} />
+      </div>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '20px 20px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ width: 30, height: 30, borderRadius: 15, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Van size={15} color="#fff" />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <span style={{ fontSize: 25, fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-            Who are you?
+        <span style={{ fontSize: 14.5, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>Bitaran</span>
+      </div>
+
+      <div
+        style={{
+          position: 'relative', padding: '32px 22px calc(28px + env(safe-area-inset-bottom))',
+          display: 'flex', flexDirection: 'column', gap: 20,
+          background: 'linear-gradient(180deg, transparent, rgba(22,24,26,0.55) 25%, var(--ink) 62%)',
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <span className="disp" style={{ fontSize: 30, fontWeight: 600, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.01em' }}>
+            One app,<br />all of {tenant?.name.replace(' Pvt. Ltd.', '') ?? 'Bitaran'}
           </span>
-          <span style={{ fontSize: 13.5, color: 'var(--faint)', lineHeight: 1.55 }}>
-            {tenant?.name.replace(' Pvt. Ltd.', '') ?? 'This distributor'} uses Bitaran for orders, bills and delivery.
-            Pick your side — you can change it later.
+          <span style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>
+            Choose how you use it. You can switch sides any time from More.
           </span>
         </div>
-      </header>
 
-      <div className="scroll">
-        <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
-
+        <div style={{ display: 'flex', border: '1.5px solid rgba(255,255,255,0.3)', borderRadius: 999, overflow: 'hidden' }}>
           <button
             onClick={() => choose('supplier')}
-            style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 18, padding: 18, display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left', boxShadow: 'var(--shadow)' }}
+            style={{ flex: 1, height: 54, color: '#fff', fontSize: 15, fontWeight: 600, borderRight: '1.5px solid rgba(255,255,255,0.3)' }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ width: 52, height: 52, background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Van size={26} color="#fff" />
-              </div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: '-0.01em' }}>I supply shops</span>
-                <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>Owner, partner, staff or rider</span>
-              </div>
-              <Chevron size={18} color="var(--faint)" />
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-              {['Take orders', 'Make VAT bills', 'Plan the route', 'Track dues', 'Stock'].map((t) => (
-                <span key={t} style={{ fontSize: 11.5, fontWeight: 500, padding: '6px 9px', background: 'var(--paper)', border: '1px solid var(--line)', color: 'var(--muted)' }}>{t}</span>
-              ))}
-            </div>
-            <span style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.5 }}>
-              Works with no signal. Everything saves on the phone and syncs later.
-            </span>
+            Supplier
           </button>
-
           <button
             onClick={() => choose('customer')}
-            style={{ background: 'var(--c-card)', border: '1px solid var(--c-line)', borderRadius: 22, padding: 18, display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left', color: 'var(--c-ink)', boxShadow: 'var(--c-shadow)' }}
+            style={{ flex: 1, height: 54, color: '#fff', fontSize: 15, fontWeight: 600 }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ width: 52, height: 52, borderRadius: 26, background: 'var(--c-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Shop size={25} color="#fffdf8" />
-              </div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <span className="disp" style={{ fontSize: 19, fontWeight: 600 }}>I run a shop</span>
-                <span style={{ fontSize: 12.5, color: 'var(--c-muted)' }}>Order stock for your store</span>
-              </div>
-              <Chevron size={18} color="var(--c-faint)" />
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-              {['Browse prices', 'Order in seconds', 'Track delivery', 'See your bills'].map((t) => (
-                <span key={t} style={{ fontSize: 11.5, fontWeight: 500, padding: '6px 10px', borderRadius: 20, background: 'var(--c-paper)', border: '1px solid var(--c-line)', color: 'var(--c-muted)' }}>{t}</span>
-              ))}
-            </div>
-            <span style={{ fontSize: 11.5, color: 'var(--c-muted)', lineHeight: 1.5 }}>
-              No phone calls. Pick a day and a time window, and the dealer sees it straight away.
-            </span>
+            Customer
           </button>
-
-          <div style={{ fontSize: 11.5, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.5, padding: '4px 12px' }}>
-            Demo build — both sides share one device. On real phones each person signs in to their own.
-          </div>
         </div>
+
+        <span style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 1.5 }}>
+          Demo build — both sides share one device. On real phones each person signs in to their own.
+        </span>
       </div>
-    </>
+    </div>
   );
 }

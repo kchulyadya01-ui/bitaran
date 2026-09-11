@@ -197,7 +197,7 @@ export default function Pack() {
             </div>
           </>
         ) : (
-          <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ padding: 19, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {(data?.packing ?? []).map((o) => {
               const done = o.lines.filter((l) => l.picked).length;
               const all = done === o.lines.length && o.lines.length > 0;

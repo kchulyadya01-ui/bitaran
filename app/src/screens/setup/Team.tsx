@@ -69,7 +69,7 @@ export default function Team() {
           </div>
 
           <div style={{ padding: '0 16px' }}>
-            <div style={{ border: '1.5px dashed #b9b9b2', padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ border: '1.5px dashed #b9b9b2', padding: 19, display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 38, height: 38, background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Plus size={19} color="#fff" />
               </div>
