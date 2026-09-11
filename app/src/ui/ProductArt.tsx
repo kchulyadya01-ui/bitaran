@@ -34,7 +34,7 @@ export function ProductArt({ name }: { name: string }) {
   );
 }
 
-const TINTS = ['#f7ecdc', '#f4ece0', '#f8e8d8', '#f6efdc', '#efe6dd'];
+const TINTS = ['#dcf1e4', '#ffe6d2', '#fff2c2', '#ffdada', '#dbeaff'];
 
 /** Stable tint per segment, so each company's shelf reads as its own. */
 export function tintFor(segmentId: string) {

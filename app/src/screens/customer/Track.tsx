@@ -79,15 +79,15 @@ export default function Track() {
 
       <div className="scroll" style={{ padding: '0 18px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ background: 'var(--c-ink)', borderRadius: 16, padding: 18, display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ width: 52, height: 52, borderRadius: 26, background: status === 'delivered' ? '#3f6b4a' : 'var(--c-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ background: 'var(--c-ok)', borderRadius: 24, padding: 18, display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ width: 52, height: 52, borderRadius: 26, background: status === 'delivered' ? 'var(--c-ink)' : 'var(--c-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               {status === 'delivered' ? <Check size={26} color="#fffdf8" /> : <Van size={26} color="#fffdf8" />}
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
               <span className="disp" style={{ fontSize: 20, fontWeight: 600, color: '#fffdf8' }}>
                 {status === 'placed' ? 'Waiting for dealer' : status === 'confirmed' ? 'Confirmed' : status === 'out_for_delivery' ? 'On the way' : status === 'delivered' ? 'Delivered' : 'Cancelled'}
               </span>
-              <span style={{ fontSize: 12.5, color: '#bfae9a' }}>
+              <span style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.8)' }}>
                 {status === 'delivered'
                   ? 'thank you'
                   : order.deliverWindow
@@ -118,13 +118,13 @@ export default function Track() {
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 22 }}>
                     <div style={{
                       width: 22, height: 22, borderRadius: 11,
-                      background: done && !current ? '#3f6b4a' : 'var(--c-card)',
+                      background: done && !current ? 'var(--c-ok)' : 'var(--c-card)',
                       border: current ? '3px solid var(--c-accent)' : done ? 'none' : '2px solid #eadfcd',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
                       {done && !current && <Check size={12} color="#fffdf8" w={3} />}
                     </div>
-                    {!last && <div style={{ width: 2, flex: 1, minHeight: 34, background: done ? '#3f6b4a' : '#eadfcd' }} />}
+                    {!last && <div style={{ width: 2, flex: 1, minHeight: 34, background: done ? 'var(--c-ok)' : 'var(--c-line)' }} />}
                   </div>
                   <div style={{ flex: 1, paddingBottom: last ? 0 : 22, display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <span style={{ fontSize: 14, fontWeight: 600, color: current ? 'var(--c-accent)' : done ? 'var(--c-ink)' : 'var(--c-faint)' }}>{s.label}</span>

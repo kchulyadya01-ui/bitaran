@@ -77,8 +77,8 @@ export default function Cart() {
             className="card"
             style={{ padding: '15px 16px', display: 'flex', alignItems: 'center', gap: 13, textAlign: 'left' }}
           >
-            <div style={{ width: 42, height: 42, borderRadius: 10, background: 'var(--c-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Van size={20} color="#fffdf8" />
+            <div style={{ width: 46, height: 46, borderRadius: 23, background: 'var(--c-ok)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Van size={20} color="#fff" />
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
               <span style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--c-faint)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Ordering from</span>
@@ -98,12 +98,12 @@ export default function Cart() {
                   <span style={{ fontSize: 11.5, color: 'var(--c-muted)' }}>Rs {money(l.product.price)} / {l.product.unit}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ height: 38, borderRadius: 9, border: '1.5px solid var(--c-accent)', display: 'flex', alignItems: 'center' }}>
-                    <button onClick={() => bump(l.product.id, -1)} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Less"><Minus size={14} color="var(--c-accent)" /></button>
-                    <span style={{ minWidth: 26, textAlign: 'center', fontSize: 14.5, fontWeight: 600 }}>{l.qty}</span>
-                    <button onClick={() => bump(l.product.id, 1)} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="More"><Plus size={14} color="var(--c-accent)" /></button>
+                  <div style={{ height: 38, borderRadius: 999, background: 'var(--c-ok)', display: 'flex', alignItems: 'center' }}>
+                    <button onClick={() => bump(l.product.id, -1)} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Less"><Minus size={14} color="#fff" /></button>
+                    <span style={{ minWidth: 26, textAlign: 'center', fontSize: 14.5, fontWeight: 700, color: '#fff' }}>{l.qty}</span>
+                    <button onClick={() => bump(l.product.id, 1)} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="More"><Plus size={14} color="#fff" /></button>
                   </div>
-                  <span className="disp" style={{ minWidth: 56, textAlign: 'right', fontSize: 16, fontWeight: 600 }}>{money(l.qty * l.product.price)}</span>
+                  <span className="disp" style={{ minWidth: 56, textAlign: 'right', fontSize: 16, fontWeight: 700, color: 'var(--c-accent)' }}>{money(l.qty * l.product.price)}</span>
                 </div>
               </div>
             ))}
@@ -117,10 +117,10 @@ export default function Cart() {
                 <button
                   key={d.offset} onClick={() => setDayOffset(d.offset)}
                   style={{
-                    flex: 1, minHeight: 56, borderRadius: 11, display: 'flex', flexDirection: 'column',
+                    flex: 1, minHeight: 58, borderRadius: 18, display: 'flex', flexDirection: 'column',
                     alignItems: 'center', justifyContent: 'center', gap: 3,
                     border: `1.5px solid ${dayOffset === d.offset ? 'var(--c-accent)' : 'var(--c-line)'}`,
-                    background: dayOffset === d.offset ? '#fdf2ea' : 'var(--c-card)',
+                    background: dayOffset === d.offset ? 'var(--c-accent-soft)' : 'var(--c-card)',
                   }}
                 >
                   <span style={{ fontSize: 13, fontWeight: 600 }}>{d.label}</span>
@@ -138,10 +138,10 @@ export default function Cart() {
                   <button
                     key={s.id} disabled={gone} onClick={() => setSlot(s.id)}
                     style={{
-                      minHeight: 56, borderRadius: 11, display: 'flex', flexDirection: 'column',
-                      alignItems: 'flex-start', justifyContent: 'center', gap: 3, padding: '0 12px',
+                      minHeight: 58, borderRadius: 18, display: 'flex', flexDirection: 'column',
+                      alignItems: 'flex-start', justifyContent: 'center', gap: 3, padding: '0 14px',
                       border: `1.5px solid ${on ? 'var(--c-accent)' : 'var(--c-line)'}`,
-                      background: on ? '#fdf2ea' : 'var(--c-card)',
+                      background: on ? 'var(--c-accent-soft)' : 'var(--c-card)',
                       opacity: gone ? 0.4 : 1,
                     }}
                   >
@@ -152,10 +152,10 @@ export default function Cart() {
               })}
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, background: '#f6ede2' }}>
-              <Clock size={15} color="#8e7358" />
-              <span style={{ fontSize: 12.5, color: '#7a6a5c', lineHeight: 1.45 }}>
-                Dealer will deliver <strong style={{ color: 'var(--c-ink)' }}>{due.label.toLowerCase()}</strong>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '11px 14px', borderRadius: 999, background: 'var(--c-ok-soft)' }}>
+              <Clock size={15} color="var(--c-ok)" />
+              <span style={{ fontSize: 12.5, color: 'var(--c-ink)', lineHeight: 1.45 }}>
+                Dealer will deliver <strong>{due.label.toLowerCase()}</strong>
               </span>
             </div>
           </div>

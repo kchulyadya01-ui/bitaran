@@ -39,7 +39,7 @@ export default function Account() {
               <button onClick={() => setPicking('supplier')} style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--c-accent)', textDecoration: 'underline' }}>Change</button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
-              <div style={{ width: 42, height: 42, borderRadius: 10, background: 'var(--c-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 42, height: 42, borderRadius: 21, background: 'var(--c-ok)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Van size={20} color="#fffdf8" />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>

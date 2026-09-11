@@ -51,11 +51,11 @@ export default function Browse() {
               buying from {tenant?.name.replace(' Pvt. Ltd.', '') ?? '—'}
             </span>
           </div>
-          <div style={{ width: 42, height: 42, borderRadius: 21, background: '#f1e5d3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Shop size={20} color="#8e7358" />
+          <div style={{ width: 44, height: 44, borderRadius: 22, background: 'var(--c-accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Shop size={20} color="var(--c-accent)" />
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--c-card)', border: '1px solid var(--c-line)', borderRadius: 12, padding: '13px 14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--c-card)', border: '1px solid var(--c-line)', borderRadius: 999, padding: '13px 16px', boxShadow: 'var(--c-shadow)' }}>
           <Search size={17} color="var(--c-faint)" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search items or companies…" style={{ border: 'none', background: 'transparent', padding: 0, fontSize: 14 }} />
         </div>
@@ -74,32 +74,39 @@ export default function Browse() {
             const out = have <= 0;
             const qty = cart[p.id] ?? 0;
             return (
-              <div key={p.id} className="card" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', opacity: out ? 0.6 : 1 }}>
-                <div style={{ height: 88, background: out ? '#f2eae2' : tintFor(p.segmentId), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div key={p.id} className="card" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', opacity: out ? 0.55 : 1 }}>
+                <div style={{ height: 110, background: out ? '#f0efe9' : tintFor(p.segmentId), display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '22px 22px 0 0' }}>
                   <ProductArt name={p.name} />
                 </div>
-                <div style={{ padding: '10px 11px 11px', display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+                <div style={{ padding: '12px 13px 13px', display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
                   <span style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--c-faint)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{segmentName(p.segmentId)}</span>
                   <span style={{ fontSize: 12.5, fontWeight: 600, lineHeight: 1.35, marginTop: -2 }}>{p.name}</span>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                    <span className="disp" style={{ fontSize: 17, fontWeight: 600 }}>Rs {money(p.price)}</span>
+                    <span className="disp" style={{ fontSize: 17, fontWeight: 700, color: 'var(--c-accent)' }}>Rs {money(p.price)}</span>
                     <span style={{ fontSize: 11, color: 'var(--c-muted)' }}>/ {p.unit}</span>
                   </div>
                   <div style={{ flex: 1 }} />
                   {out ? (
-                    <div style={{ height: 42, borderRadius: 10, background: '#f2eae2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600, color: '#8e7358' }}>
+                    <div style={{ height: 42, borderRadius: 999, background: '#f0efe9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600, color: 'var(--c-faint)' }}>
                       Out of stock
                     </div>
-                  ) : (
-                    <div style={{ height: 42, borderRadius: 10, border: `1.5px solid ${qty > 0 ? 'var(--c-accent)' : '#e0d2be'}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  ) : qty > 0 ? (
+                    <div style={{ height: 42, borderRadius: 999, background: 'var(--c-ok)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <button onClick={() => bump(p.id, -1)} style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="Less">
-                        <Minus size={15} color={qty > 0 ? 'var(--c-accent)' : '#cdbda9'} />
+                        <Minus size={15} color="#fff" />
                       </button>
-                      <span style={{ fontSize: 15, fontWeight: 600, color: qty > 0 ? 'var(--c-ink)' : '#cdbda9' }}>{qty}</span>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{qty}</span>
                       <button onClick={() => bump(p.id, 1)} style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-label="More">
-                        <Plus size={15} color="var(--c-accent)" />
+                        <Plus size={15} color="#fff" />
                       </button>
                     </div>
+                  ) : (
+                    <button
+                      onClick={() => bump(p.id, 1)}
+                      style={{ height: 42, borderRadius: 999, background: 'var(--c-accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12.5, fontWeight: 700, color: 'var(--c-accent)' }}
+                    >
+                      <Plus size={15} color="var(--c-accent)" /> Add
+                    </button>
                   )}
                 </div>
               </div>
@@ -112,23 +119,24 @@ export default function Browse() {
         <button
           onClick={() => count && nav('/shop/cart')}
           style={{
-            width: '100%', height: 58, borderRadius: 14, display: 'flex', alignItems: 'center',
-            padding: '0 8px 0 18px', gap: 12, textAlign: 'left',
-            background: count ? 'var(--c-ink)' : 'var(--c-card)',
-            border: count ? '1px solid var(--c-ink)' : '1px dashed #dccfba',
+            width: '100%', height: 62, borderRadius: 999, display: 'flex', alignItems: 'center',
+            padding: '0 8px 0 22px', gap: 12, textAlign: 'left',
+            background: count ? 'var(--c-ok)' : 'var(--c-card)',
+            border: count ? 'none' : '1.5px dashed var(--c-line)',
+            boxShadow: count ? 'var(--c-shadow)' : 'none',
           }}
         >
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <span style={{ fontSize: 11.5, color: count ? '#bfae9a' : 'var(--c-faint)' }}>
+            <span style={{ fontSize: 11.5, color: count ? 'rgba(255,255,255,0.75)' : 'var(--c-faint)' }}>
               {count ? `${count} item${count === 1 ? '' : 's'} in order` : 'Your order is empty'}
             </span>
-            <span className="disp" style={{ fontSize: 19, fontWeight: 600, color: count ? '#fffdf8' : 'var(--c-faint)' }}>
+            <span className="disp" style={{ fontSize: 19, fontWeight: 700, color: count ? '#fff' : 'var(--c-faint)' }}>
               {count ? `Rs ${money(total)}` : 'Tap + to add'}
             </span>
           </div>
           {!!count && (
-            <span style={{ height: 42, borderRadius: 10, background: 'var(--c-accent)', color: '#fffdf8', display: 'flex', alignItems: 'center', gap: 7, padding: '0 16px', fontSize: 14, fontWeight: 600 }}>
-              Review <Chevron size={15} color="#fffdf8" />
+            <span style={{ height: 46, borderRadius: 999, background: '#fff', color: 'var(--c-ok)', display: 'flex', alignItems: 'center', gap: 7, padding: '0 18px', fontSize: 14, fontWeight: 700 }}>
+              Review <Chevron size={15} color="var(--c-ok)" />
             </span>
           )}
         </button>

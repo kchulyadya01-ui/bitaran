@@ -39,7 +39,7 @@ export default function Bills() {
       </div>
 
       <div style={{ padding: '0 18px 14px' }}>
-        <div style={{ background: data?.due ? '#7a3d22' : '#3f6b4a', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ background: data?.due ? '#e0672f' : 'var(--c-ok)', borderRadius: 24, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               <span className="np" style={{ fontSize: 12, color: '#e8c8b2' }}>बाँकी रकम · you owe</span>
@@ -67,7 +67,7 @@ export default function Bills() {
           )}
           {(data?.unpaid ?? []).map((i) => (
             <div key={i.id} className="card" style={{ borderColor: '#dcb9a2', padding: '15px 16px', display: 'flex', alignItems: 'center', gap: 13 }}>
-              <div style={{ width: 38, height: 38, borderRadius: 10, background: '#f7e7dc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 38, height: 38, borderRadius: 19, background: 'var(--c-accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Receipt size={18} color="var(--c-accent)" />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
@@ -86,7 +86,7 @@ export default function Bills() {
           )}
           {(data?.paid ?? []).map((i) => (
             <div key={i.id} className="card" style={{ padding: '15px 16px', display: 'flex', alignItems: 'center', gap: 13 }}>
-              <div style={{ width: 38, height: 38, borderRadius: 10, background: '#eaf0ea', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 38, height: 38, borderRadius: 19, background: 'var(--c-ok-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Check size={18} color="var(--c-ok)" />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
