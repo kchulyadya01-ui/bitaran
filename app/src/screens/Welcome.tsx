@@ -35,7 +35,7 @@ export default function Welcome() {
 
           <button
             onClick={() => choose('supplier')}
-            style={{ background: 'var(--card)', border: '1px solid var(--line)', borderLeft: '4px solid var(--ink)', padding: 18, display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left' }}
+            style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 18, padding: 18, display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left', boxShadow: 'var(--shadow)' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{ width: 52, height: 52, background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -59,7 +59,7 @@ export default function Welcome() {
 
           <button
             onClick={() => choose('customer')}
-            style={{ background: 'var(--c-card)', border: '1px solid var(--c-line)', borderLeft: '4px solid var(--c-accent)', borderRadius: 14, padding: 18, display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left', color: 'var(--c-ink)' }}
+            style={{ background: 'var(--c-card)', border: '1px solid var(--c-line)', borderRadius: 22, padding: 18, display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left', color: 'var(--c-ink)', boxShadow: 'var(--c-shadow)' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{ width: 52, height: 52, borderRadius: 26, background: 'var(--c-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

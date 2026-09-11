@@ -67,7 +67,7 @@ export default function SyncScreen() {
               <span className="num" style={{ fontSize: 11.5, color: 'var(--muted)' }}>no server connected yet</span>
             </div>
             <button
-              style={{ width: 48, height: 48, border: '1.5px solid var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ width: 48, height: 48, borderRadius: 24, border: '1.5px solid var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               onClick={() => setToast(online ? 'No server to sync to yet — see what is left' : 'Still offline')}
               aria-label="Sync now"
             >
@@ -94,7 +94,7 @@ export default function SyncScreen() {
           </div>
 
           {!!conflicts.length && (
-            <div className="card" style={{ borderLeft: '3px solid var(--bad)', padding: 14, display: 'flex', flexDirection: 'column', gap: 9 }}>
+            <div className="card" style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 9 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Alert size={15} color="var(--bad)" />
                 <span style={{ fontSize: 13.5, fontWeight: 600 }}>Recent field changes</span>
@@ -110,7 +110,7 @@ export default function SyncScreen() {
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: 9, padding: '12px 14px', background: '#eef2ee', borderLeft: '3px solid var(--ok)' }}>
+          <div style={{ display: 'flex', gap: 9, padding: '12px 14px', background: '#eef2ee', borderRadius: 14 }}>
             <Check size={15} color="var(--ok)" />
             <span style={{ fontSize: 12, color: 'var(--ok)', lineHeight: 1.5 }}>
               Bills can never be deleted, only cancelled with a reason. Every change is logged.

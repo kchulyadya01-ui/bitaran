@@ -141,7 +141,7 @@ export default function InvoiceView() {
               Issued by {issuer?.name.split(' ')[0]} · device {invoice.prefix}<br />
               Printed {invoice.printCount} time{invoice.printCount === 1 ? '' : 's'}
             </div>
-            <div style={{ border: `1px solid ${isReprint ? 'var(--bad)' : '#c9c9c2'}`, padding: '4px 7px', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', color: isReprint ? 'var(--bad)' : 'var(--muted)' }}>
+            <div style={{ border: `1px solid ${isReprint ? 'var(--bad)' : '#c9c9c2'}`, borderRadius: 999, padding: '4px 9px', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', color: isReprint ? 'var(--bad)' : 'var(--muted)' }}>
               {isReprint ? 'COPY OF ORIGINAL' : 'ORIGINAL'}
             </div>
           </div>

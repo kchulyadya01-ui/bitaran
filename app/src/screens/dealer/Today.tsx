@@ -107,7 +107,7 @@ export default function Today() {
           <Link
             to="/sync"
             style={{
-              display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', textDecoration: 'none',
+              display: 'flex', alignItems: 'center', gap: 6, padding: '7px 12px', textDecoration: 'none', borderRadius: 999,
               background: pending ? '#fdf6e3' : '#eef2ee',
               border: `1px solid ${pending ? '#e8d9a8' : '#cfe0d5'}`,
             }}
@@ -123,7 +123,7 @@ export default function Today() {
       <div className="scroll">
         <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'flex', gap: 10 }}>
-            <div style={{ flex: 1, background: 'var(--ink)', color: '#fff', padding: 14 }}>
+            <div style={{ flex: 1, background: 'var(--ink)', color: '#fff', padding: 14, borderRadius: 18 }}>
               <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--faint)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Orders today</div>
               <div className="num" style={{ fontSize: 34, fontWeight: 600, lineHeight: 1, marginTop: 4 }}>{data?.todaysOrders.length ?? 0}</div>
             </div>
@@ -142,7 +142,7 @@ export default function Today() {
             {([['new', 'New'], ['billed', 'Billed'], ['out', 'On van'], ['done', 'Done']] as [Tab, string][]).map(([id, label]) => (
               <button key={id} className={tab === id ? 'on' : ''} onClick={() => setTab(id)}>
                 <span>{label}</span>
-                <span className="num" style={{ fontSize: 15, fontWeight: 600, color: tab === id ? 'var(--ink)' : 'var(--muted)' }}>{counts[id]}</span>
+                <span className="num" style={{ fontSize: 15, fontWeight: 600, color: tab === id ? '#fff' : 'var(--muted)' }}>{counts[id]}</span>
               </button>
             ))}
           </div>
@@ -151,7 +151,7 @@ export default function Today() {
             <span className="lbl">{visible.length} order{visible.length === 1 ? '' : 's'}</span>
             <button
               onClick={() => setSortOpen(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', border: '1px solid var(--line)', background: 'var(--card)' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 12px', border: '1px solid var(--line)', background: 'var(--card)', borderRadius: 999 }}
             >
               <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>Sort</span>
               <span style={{ fontSize: 12, fontWeight: 600 }}>{sort.label}</span>
@@ -168,7 +168,7 @@ export default function Today() {
                   key={r.id}
                   onClick={() => (r.invoice ? nav(`/invoice/${r.invoice.id}`) : nav(`/bill/${r.id}`))}
                   className="card"
-                  style={{ borderLeft: `3px solid ${tone}`, padding: '13px 14px', display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left' }}
+                  style={{ padding: '13px 14px', display: 'flex', flexDirection: 'column', gap: 8, textAlign: 'left' }}
                 >
                   <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, width: '100%' }}>
                     <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>{r.shop}</span>
@@ -179,7 +179,7 @@ export default function Today() {
                       {r.itemCount} items · {r.invoice ? r.invoice.number : 'no bill yet'}
                     </span>
                     <span style={{
-                      fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 7px',
+                      fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 9px', borderRadius: 999,
                       border: `1px solid ${tone}`, color: hot ? '#fff' : tone, background: hot ? 'var(--ink)' : 'transparent',
                     }}>
                       {hot ? 'MAKE BILL' : r.status === 'confirmed' ? 'BILLED' : r.status === 'out_for_delivery' ? 'ON VAN' : 'DONE'}

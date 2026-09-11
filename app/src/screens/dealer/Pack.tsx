@@ -17,7 +17,7 @@ function Tick({ on, half, size = 28 }: { on: boolean; half?: boolean; size?: num
   return (
     <div
       style={{
-        width: size, height: size, flexShrink: 0,
+        width: size, height: size, flexShrink: 0, borderRadius: size >= 26 ? 8 : 7,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         border: `1.5px solid ${on ? 'var(--ok)' : half ? 'var(--warn)' : '#c9c9c2'}`,
         background: on ? 'var(--ok)' : 'var(--card)',
@@ -204,7 +204,7 @@ export default function Pack() {
               const due = dueLabel(o.deliverBy);
               const dueColor = due.tone === 'bad' ? 'var(--bad)' : due.tone === 'warn' ? 'var(--warn)' : 'var(--muted)';
               return (
-                <div key={o.id} className="card" style={{ borderLeft: `3px solid ${all ? 'var(--ok)' : 'var(--ink)'}`, display: 'flex', flexDirection: 'column' }}>
+                <div key={o.id} className="card" style={{ display: 'flex', flexDirection: 'column' }}>
                   <div style={{ padding: '13px 14px', display: 'flex', flexDirection: 'column', gap: 6, borderBottom: '1px solid var(--hair)' }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
                       <span style={{ fontSize: 15, fontWeight: 600 }}>{o.shop}</span>

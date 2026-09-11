@@ -18,7 +18,7 @@ export default function Business() {
   const field = (label: string, value: string, hint?: string, mono = false) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }} key={label}>
       <span className="lbl" style={{ fontSize: 11 }}>{label}</span>
-      <div className={mono ? 'num' : ''} style={{ background: 'var(--card)', border: '1px solid var(--ink)', padding: 14, fontSize: 15, fontWeight: 500 }}>{value}</div>
+      <div className={mono ? 'num' : ''} style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 12, padding: 14, fontSize: 15, fontWeight: 500 }}>{value}</div>
       {hint && <span style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.45 }}>{hint}</span>}
     </div>
   );
@@ -46,7 +46,7 @@ export default function Business() {
             <div style={{ flex: 1.2 }}>{field('PAN / VAT no.', tenant?.pan ?? '', undefined, true)}</div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7 }}>
               <span className="lbl" style={{ fontSize: 11 }}>Registered</span>
-              <div style={{ display: 'flex', border: '1px solid var(--ink)', height: 51 }}>
+              <div style={{ display: 'flex', border: '1px solid var(--ink)', height: 51, borderRadius: 12, overflow: 'hidden' }}>
                 <div style={{ flex: 1, background: tenant?.vatRegistered ? 'var(--ink)' : 'var(--card)', color: tenant?.vatRegistered ? '#fff' : 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600 }}>VAT</div>
                 <div style={{ flex: 1, background: tenant?.vatRegistered ? 'var(--card)' : 'var(--ink)', color: tenant?.vatRegistered ? 'var(--muted)' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600 }}>PAN</div>
               </div>
@@ -63,7 +63,7 @@ export default function Business() {
             </div>
           </div>
 
-          <div className="card" style={{ borderLeft: '3px solid var(--ok)', padding: 14, display: 'flex', flexDirection: 'column', gap: 9 }}>
+          <div className="card" style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 9 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
               <span className="lbl" style={{ color: 'var(--ok)' }}>Your bill numbers</span>
               <span className="num" style={{ fontSize: 15, fontWeight: 600 }}>

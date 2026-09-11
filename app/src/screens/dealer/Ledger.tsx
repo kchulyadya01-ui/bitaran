@@ -74,7 +74,10 @@ export default function Ledger() {
         <div className="rows">
           {(data?.rows ?? []).map((r) => (
             <div key={r.id} className="row">
-              <div style={{ width: 4, alignSelf: 'stretch', background: r.days > 30 ? 'var(--bad)' : r.days > 15 ? '#d9a441' : '#4a9c74' }} />
+              <div style={{
+                width: 9, height: 9, borderRadius: 5, flexShrink: 0,
+                background: r.days > 30 ? 'var(--bad)' : r.days > 15 ? '#d9a441' : '#4a9c74',
+              }} />
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
                 <span style={{ fontSize: 14.5, fontWeight: 600 }}>{r.shopName}</span>
                 <span className="num" style={{ fontSize: 11, color: r.days > 30 ? 'var(--bad)' : r.days > 15 ? 'var(--warn)' : 'var(--muted)', fontWeight: r.days > 15 ? 500 : 400 }}>
@@ -104,7 +107,7 @@ export default function Ledger() {
               <div className="num" style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>owes {money(collecting.due)}</div>
             </div>
             <input type="number" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} autoFocus />
-            <div style={{ display: 'flex', border: '1px solid var(--ink)' }}>
+            <div style={{ display: 'flex', border: '1px solid var(--ink)', borderRadius: 12, overflow: 'hidden' }}>
               {(['cash', 'digital'] as const).map((m) => (
                 <button key={m} onClick={() => setMethod(m)} style={{ flex: 1, height: 48, fontSize: 14, fontWeight: 600, background: method === m ? 'var(--ink)' : 'var(--card)', color: method === m ? '#fff' : 'var(--muted)' }}>
                   {m === 'cash' ? 'Cash' : 'Digital'}

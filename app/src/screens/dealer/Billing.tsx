@@ -254,7 +254,7 @@ export default function Billing() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', border: '1px solid var(--ink)' }}>
+        <div style={{ display: 'flex', border: '1px solid var(--ink)', borderRadius: 12, overflow: 'hidden' }}>
           {(['cash', 'credit'] as const).map((m) => (
             <button
               key={m}
@@ -271,7 +271,7 @@ export default function Billing() {
         </div>
 
         {mode === 'credit' && dueAlready > 0 && (
-          <div style={{ display: 'flex', gap: 8, padding: '10px 12px', background: 'var(--bad-soft)', borderLeft: '3px solid var(--bad)' }}>
+          <div style={{ display: 'flex', gap: 8, padding: '10px 12px', background: 'var(--bad-soft)', borderRadius: 14 }}>
             <Alert size={15} color="var(--bad)" />
             <span className="num" style={{ fontSize: 12, color: 'var(--bad)', lineHeight: 1.45 }}>
               Shop already owes {money(dueAlready)}
@@ -280,7 +280,7 @@ export default function Billing() {
         )}
 
         {customer && !customer.pan && (
-          <div style={{ display: 'flex', gap: 8, padding: '10px 12px', background: 'var(--bad-soft)', borderLeft: '3px solid var(--bad)' }}>
+          <div style={{ display: 'flex', gap: 8, padding: '10px 12px', background: 'var(--bad-soft)', borderRadius: 14 }}>
             <Alert size={15} color="var(--bad)" />
             <span style={{ fontSize: 12, color: 'var(--bad)', lineHeight: 1.45 }}>
               This shop has no PAN. A bill without a buyer PAN is a defective invoice — add it first.

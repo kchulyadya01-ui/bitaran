@@ -117,7 +117,6 @@ export default function Catalog() {
         {groups.map(({ segment, items }) => (
           <div key={segment.id} style={{ marginBottom: 14 }}>
             <div style={{ padding: '12px 16px 10px', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 3, alignSelf: 'stretch', background: 'var(--ink)' }} />
               <button
                 onClick={() => { setSegName(segment.name); setSheet({ kind: 'segment', editing: { id: segment.id, name: segment.name } }); }}
                 style={{ flex: 1, textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 2 }}

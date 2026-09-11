@@ -45,7 +45,7 @@ export default function Team() {
                     {u.role} · {u.phone.slice(0, 5)}…{u.phone.slice(-2)}
                   </span>
                 </div>
-                <div style={{ border: '1px solid var(--ink)', padding: '6px 9px' }}>
+                <div style={{ border: '1px solid var(--ink)', padding: '6px 9px', borderRadius: 8 }}>
                   <span className="num" style={{ fontSize: 12, fontWeight: 600 }}>{u.prefix}</span>
                 </div>
               </div>
@@ -81,7 +81,7 @@ export default function Team() {
           </div>
 
           <div style={{ padding: '0 16px' }}>
-            <div className="card" style={{ borderLeft: '3px solid var(--ok)', padding: 15, display: 'flex', flexDirection: 'column', gap: 9 }}>
+            <div className="card" style={{ padding: 15, display: 'flex', flexDirection: 'column', gap: 9 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Info size={15} color="var(--ok)" />
                 <span style={{ fontSize: 13.5, fontWeight: 600 }}>Why the letters</span>
