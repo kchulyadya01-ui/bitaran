@@ -36,7 +36,7 @@ export default function Pack() {
   const nav = useNavigate();
   const tenantId = useTenantId();
   const [toast, setToast] = useToast();
-  const [view, setView] = useState<View>('item');
+  const [view, setView] = useState<View>('order');
 
   const data = useLiveQuery(async () => {
     if (!tenantId) return null;
@@ -142,7 +142,7 @@ export default function Pack() {
           <div style={{ width: `${pct}%`, height: '100%', background: pct === 100 ? 'var(--ok)' : 'var(--ink)' }} />
         </div>
         <div className="tabs">
-          {([['item', 'By item'], ['order', 'By shop']] as [View, string][]).map(([id, label]) => (
+          {([['order', 'By shop'], ['item', 'By item']] as [View, string][]).map(([id, label]) => (
             <button key={id} className={view === id ? 'on' : ''} onClick={() => setView(id)}>
               <span>{label}</span>
             </button>
