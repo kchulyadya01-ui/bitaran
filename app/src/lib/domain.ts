@@ -1,0 +1,361 @@
+import NepaliDateRaw from 'nepali-date-converter';
+import {
+  db, uid, enqueue, audit, getMeta, setMeta,
+  STATUS_RANK,
+  type Invoice, type InvoiceLine, type OrderEvent, type OrderStatus,
+  type PaymentType, type Product,
+} from './db';
+
+const NepaliDate = NepaliDateRaw as unknown as typeof NepaliDateRaw;
+
+export const VAT_RATE = 0.13;
+
+/** Nepali/Indian digit grouping: 1,24,500 not 124,500. */
+export function money(n: number, withPaisa = false): string {
+  const neg = n < 0;
+  const fixed = Math.abs(n).toFixed(2);
+  const [whole, paisa] = fixed.split('.');
+  let grouped = whole;
+  if (whole.length > 3) {
+    const last3 = whole.slice(-3);
+    let rest = whole.slice(0, -3);
+    const groups: string[] = [];
+    while (rest.length > 2) {
+      groups.unshift(rest.slice(-2));
+      rest = rest.slice(0, -2);
+    }
+    if (rest.length) groups.unshift(rest);
+    grouped = groups.join(',') + ',' + last3;
+  }
+  const out = withPaisa || paisa !== '00' ? `${grouped}.${paisa}` : grouped;
+  return neg ? `-${out}` : out;
+}
+
+export const rs = (n: number, withPaisa = false) => `Rs ${money(n, withPaisa)}`;
+
+export function vatOf(subtotal: number) {
+  return Math.round(subtotal * VAT_RATE * 100) / 100;
+}
+
+// --- Bikram Sambat -----------------------------------------------------------
+
+export function bs(date: Date | number = Date.now()) {
+  const d = new NepaliDate(new Date(date));
+  return {
+    ymd: d.format('YYYY/MM/DD'),
+    long: d.format('DD MMMM YYYY'),
+    dayMonth: d.format('MMMM DD'),
+    year: d.getYear(),
+    monthIndex: d.getMonth(),
+  };
+}
+
+/** Nepali fiscal year starts Shrawan 1 (month index 3). */
+export function fiscalYearOf(date: Date | number = Date.now()): number {
+  const d = bs(date);
+  return d.monthIndex >= 3 ? d.year : d.year - 1;
+}
+
+// --- Derived values. Never stored; always summed from events. ----------------
+
+export async function stockOnHand(productId: string): Promise<number> {
+  const events = await db.stockEvents.where('productId').equals(productId).toArray();
+  return events.reduce((sum, e) => sum + e.delta, 0);
+}
+
+export async function allStock(tenantId: string): Promise<Record<string, number>> {
+  const events = await db.stockEvents.where('tenantId').equals(tenantId).toArray();
+  const out: Record<string, number> = {};
+  for (const e of events) out[e.productId] = (out[e.productId] ?? 0) + e.delta;
+  return out;
+}
+
+export async function balanceOf(customerId: string): Promise<number> {
+  const invoices = await db.invoices.where('customerId').equals(customerId).toArray();
+  const payments = await db.payments.where('customerId').equals(customerId).toArray();
+  const billed = invoices
+    .filter((i) => i.status === 'issued' && i.paymentType === 'credit')
+    .reduce((s, i) => s + i.total, 0);
+  const paid = payments.reduce((s, p) => s + p.amount, 0);
+  return Math.round((billed - paid) * 100) / 100;
+}
+
+export async function allBalances(tenantId: string): Promise<Record<string, { due: number; oldest?: number; bills: number }>> {
+  const invoices = await db.invoices.where('tenantId').equals(tenantId).toArray();
+  const payments = await db.payments.where('tenantId').equals(tenantId).toArray();
+  const out: Record<string, { due: number; oldest?: number; bills: number }> = {};
+  for (const i of invoices) {
+    if (i.status !== 'issued' || i.paymentType !== 'credit') continue;
+    const row = (out[i.customerId] ??= { due: 0, bills: 0 });
+    row.due += i.total;
+    row.bills += 1;
+    row.oldest = row.oldest === undefined ? i.issuedAt : Math.min(row.oldest, i.issuedAt);
+  }
+  for (const p of payments) {
+    const row = (out[p.customerId] ??= { due: 0, bills: 0 });
+    row.due -= p.amount;
+  }
+  return out;
+}
+
+/** Status advances by rank and never retreats; a late lower-ranked event is audit only. */
+export function resolveStatus(events: OrderEvent[]): OrderStatus {
+  if (events.some((e) => e.status === 'cancelled')) return 'cancelled';
+  let best: OrderStatus = 'placed';
+  for (const e of events) {
+    if (STATUS_RANK[e.status] > STATUS_RANK[best] && e.status !== 'cancelled') best = e.status;
+  }
+  return best;
+}
+
+export const STATUS_LABEL: Record<OrderStatus, string> = {
+  placed: 'New',
+  confirmed: 'Confirmed',
+  out_for_delivery: 'On van',
+  delivered: 'Delivered',
+  cancelled: 'Cancelled',
+};
+
+// --- Invoice numbering -------------------------------------------------------
+
+/**
+ * Per-device series: A-2083-0001. The counter is bumped inside the same
+ * transaction that writes the invoice, so a number is never handed out twice
+ * and never skipped. See docs/architecture.md section 2.
+ */
+async function takeNextSeq(tenantId: string, prefix: string, fiscalYear: number): Promise<number> {
+  const key = `${tenantId}|${prefix}|${fiscalYear}`;
+  const row = await db.counters.get(key);
+  const next = row?.next ?? 1;
+  await db.counters.put({ key, next: next + 1 });
+  return next;
+}
+
+export function formatInvoiceNumber(prefix: string, fiscalYear: number, seq: number) {
+  return `${prefix}-${fiscalYear}-${String(seq).padStart(4, '0')}`;
+}
+
+export async function peekNextInvoiceNumber(tenantId: string, prefix: string) {
+  const fy = fiscalYearOf();
+  const row = await db.counters.get(`${tenantId}|${prefix}|${fy}`);
+  return formatInvoiceNumber(prefix, fy, row?.next ?? 1);
+}
+
+export interface DraftLine {
+  product: Product;
+  qty: number;
+}
+
+export async function issueInvoice(opts: {
+  tenantId: string;
+  customerId: string;
+  buyerPan: string;
+  lines: DraftLine[];
+  paymentType: PaymentType;
+  orderId?: string;
+}): Promise<Invoice> {
+  const deviceId = (await getMeta<string>('deviceId'))!;
+  const userId = (await getMeta<string>('activeUserId'))!;
+  const user = await db.users.get(userId);
+  const prefix = user?.prefix ?? 'A';
+  const fy = fiscalYearOf();
+  const now = Date.now();
+
+  const priced = opts.lines
+    .filter((l) => l.qty > 0)
+    .map((l) => ({
+      ...l,
+      lineTotal: Math.round(l.qty * l.product.price * 100) / 100,
+    }));
+  const subtotal = Math.round(priced.reduce((s, l) => s + l.lineTotal, 0) * 100) / 100;
+  const vat = vatOf(subtotal);
+  const total = Math.round((subtotal + vat) * 100) / 100;
+
+  let invoice!: Invoice;
+
+  await db.transaction(
+    'rw',
+    [db.invoices, db.invoiceLines, db.stockEvents, db.payments, db.counters, db.outbox, db.auditLog, db.meta, db.orderEvents],
+    async () => {
+      const seq = await takeNextSeq(opts.tenantId, prefix, fy);
+      const id = uid();
+      invoice = {
+        id,
+        tenantId: opts.tenantId,
+        number: formatInvoiceNumber(prefix, fy, seq),
+        fiscalYear: fy,
+        prefix,
+        seq,
+        customerId: opts.customerId,
+        orderId: opts.orderId,
+        buyerPan: opts.buyerPan,
+        issuedAt: now,
+        issuedBy: userId,
+        subtotal,
+        vat,
+        total,
+        paymentType: opts.paymentType,
+        status: 'issued',
+        printCount: 0,
+      };
+      await db.invoices.add(invoice);
+
+      const lines: InvoiceLine[] = priced.map((l) => ({
+        id: uid(),
+        invoiceId: id,
+        productId: l.product.id,
+        nameSnapshot: l.product.name,
+        unitSnapshot: l.product.unit,
+        rateSnapshot: l.product.price,
+        qty: l.qty,
+        lineTotal: l.lineTotal,
+      }));
+      await db.invoiceLines.bulkAdd(lines);
+
+      // Selling moves stock. Negative stock is allowed and surfaced, never blocked.
+      await db.stockEvents.bulkAdd(
+        priced.map((l) => ({
+          id: uid(),
+          tenantId: opts.tenantId,
+          productId: l.product.id,
+          delta: -l.qty,
+          reason: 'sold' as const,
+          refId: id,
+          occurredAt: now,
+          createdBy: userId,
+        })),
+      );
+
+      // A cash sale is paid at the moment it is billed.
+      if (opts.paymentType === 'cash') {
+        await db.payments.add({
+          id: uid(),
+          tenantId: opts.tenantId,
+          customerId: opts.customerId,
+          invoiceId: id,
+          amount: total,
+          method: 'cash',
+          collectedAt: now,
+          collectedBy: userId,
+        });
+      }
+
+      if (opts.orderId) {
+        await db.orderEvents.add({
+          id: uid(), orderId: opts.orderId, status: 'confirmed', occurredAt: now, createdBy: userId,
+        });
+      }
+
+      await db.outbox.add({ id: uid(), entity: 'invoice', op: 'insert', payload: { invoice, lines }, createdAt: now, attempts: 0 });
+      await db.auditLog.add({
+        id: uid(), tenantId: opts.tenantId, userId, deviceId,
+        action: 'issue_invoice', entity: 'invoice', entityId: id, after: invoice, deviceTime: now,
+      });
+    },
+  );
+
+  return invoice;
+}
+
+export async function recordPayment(opts: {
+  tenantId: string;
+  customerId: string;
+  amount: number;
+  method: 'cash' | 'digital';
+  invoiceId?: string;
+  note?: string;
+}) {
+  const userId = (await getMeta<string>('activeUserId'))!;
+  const id = uid();
+  const row = {
+    id,
+    tenantId: opts.tenantId,
+    customerId: opts.customerId,
+    invoiceId: opts.invoiceId,
+    amount: opts.amount,
+    method: opts.method,
+    collectedAt: Date.now(),
+    collectedBy: userId,
+    note: opts.note,
+  };
+  await db.payments.add(row);
+  await enqueue('payment', 'insert', row);
+  await audit('record_payment', 'payment', id, row);
+  return row;
+}
+
+export async function markOrderStatus(orderId: string, status: OrderStatus, note?: string) {
+  const userId = (await getMeta<string>('activeUserId'))!;
+  const row: OrderEvent = { id: uid(), orderId, status, occurredAt: Date.now(), createdBy: userId, note };
+  await db.orderEvents.add(row);
+  await enqueue('orderEvent', 'insert', row);
+  await audit('order_status', 'order', orderId, row);
+}
+
+export async function receiveIncoming(incomingId: string) {
+  const userId = (await getMeta<string>('activeUserId'))!;
+  const tenantId = (await getMeta<string>('activeTenantId'))!;
+  const inc = await db.incoming.get(incomingId);
+  if (!inc || inc.status === 'received') return;
+  const lines = await db.incomingLines.where('incomingId').equals(incomingId).toArray();
+  const now = Date.now();
+  await db.transaction('rw', [db.incoming, db.stockEvents, db.outbox, db.auditLog], async () => {
+    await db.incoming.put({ ...inc, status: 'received', receivedAt: now });
+    await db.stockEvents.bulkAdd(
+      lines.map((l) => ({
+        id: uid(), tenantId, productId: l.productId, delta: l.qty,
+        reason: 'received' as const, refId: incomingId, occurredAt: now, createdBy: userId,
+      })),
+    );
+    await db.outbox.add({ id: uid(), entity: 'incoming', op: 'update', payload: { incomingId, status: 'received' }, createdAt: now, attempts: 0 });
+    await db.auditLog.add({
+      id: uid(), tenantId, userId, deviceId: (await getMeta<string>('deviceId')) ?? '?',
+      action: 'receive_stock', entity: 'incoming', entityId: incomingId, after: { lines }, deviceTime: now,
+    });
+  });
+}
+
+/** Class 2 edit: last write wins, and the superseded value is kept. */
+export async function updateProductPrice(productId: string, price: number) {
+  const deviceId = (await getMeta<string>('deviceId'))!;
+  const p = await db.products.get(productId);
+  if (!p || p.price === price) return;
+  const now = Date.now();
+  await db.transaction('rw', [db.products, db.fieldHistory, db.outbox, db.auditLog], async () => {
+    await db.fieldHistory.add({
+      id: uid(), entity: 'product', entityId: productId, field: 'price',
+      oldValue: String(p.price), newValue: String(price), changedAt: now, changedByDevice: deviceId,
+    });
+    await db.products.put({ ...p, price, updatedAt: now, updatedByDevice: deviceId });
+    await db.outbox.add({ id: uid(), entity: 'product', op: 'update', payload: { productId, price }, createdAt: now, attempts: 0 });
+    await db.auditLog.add({
+      id: uid(), tenantId: p.tenantId, userId: (await getMeta<string>('activeUserId')) ?? '?', deviceId,
+      action: 'price_change', entity: 'product', entityId: productId, before: { price: p.price }, after: { price }, deviceTime: now,
+    });
+  });
+}
+
+export async function placeOrder(opts: {
+  tenantId: string;
+  customerId: string;
+  lines: { productId: string; qty: number }[];
+  wantedOn?: string;
+  note?: string;
+}) {
+  const now = Date.now();
+  const orderId = uid();
+  await db.transaction('rw', [db.orders, db.orderLines, db.orderEvents, db.outbox], async () => {
+    await db.orders.add({
+      id: orderId, tenantId: opts.tenantId, customerId: opts.customerId,
+      placedAt: now, wantedOn: opts.wantedOn, note: opts.note,
+    });
+    await db.orderLines.bulkAdd(
+      opts.lines.filter((l) => l.qty > 0).map((l) => ({ id: uid(), orderId, productId: l.productId, qty: l.qty })),
+    );
+    await db.orderEvents.add({ id: uid(), orderId, status: 'placed', occurredAt: now, createdBy: opts.customerId });
+    await db.outbox.add({ id: uid(), entity: 'order', op: 'insert', payload: { orderId }, createdAt: now, attempts: 0 });
+  });
+  return orderId;
+}
+
+export { getMeta, setMeta };

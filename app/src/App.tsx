@@ -1,0 +1,127 @@
+import { useEffect, useState } from 'react';
+import { HashRouter, Routes, Route, NavLink, useLocation, Navigate } from 'react-router-dom';
+import { seedIfEmpty } from './lib/seed';
+import { Box, Receipt, Pin, Grid, Bars, Shop, Clock, Person } from './ui/icons';
+
+import Today from './screens/dealer/Today';
+import Billing from './screens/dealer/Billing';
+import InvoiceView from './screens/dealer/InvoiceView';
+import RouteScreen from './screens/dealer/RouteScreen';
+import Catalog from './screens/dealer/Catalog';
+import Incoming from './screens/dealer/Incoming';
+import Ledger from './screens/dealer/Ledger';
+import Reports from './screens/dealer/Reports';
+import SyncScreen from './screens/dealer/SyncScreen';
+import More from './screens/dealer/More';
+
+import Browse from './screens/customer/Browse';
+import Cart from './screens/customer/Cart';
+import Track from './screens/customer/Track';
+import Bills from './screens/customer/Bills';
+
+import Business from './screens/setup/Business';
+import Team from './screens/setup/Team';
+
+function DealerNav() {
+  const items = [
+    { to: '/', label: 'Orders', Icon: Box, end: true },
+    { to: '/dues', label: 'Dues', Icon: Bars },
+    { to: '/route', label: 'Route', Icon: Pin },
+    { to: '/stock', label: 'Stock', Icon: Grid },
+    { to: '/more', label: 'More', Icon: Receipt },
+  ];
+  return (
+    <nav className="bottomnav">
+      {items.map(({ to, label, Icon, end }) => (
+        <NavLink key={to} to={to} end={end} className={({ isActive }) => (isActive ? 'on' : '')}>
+          {({ isActive }) => (
+            <>
+              <Icon size={21} color={isActive ? '#16181a' : '#6b6f76'} />
+              <span>{label}</span>
+            </>
+          )}
+        </NavLink>
+      ))}
+    </nav>
+  );
+}
+
+function CustomerNav() {
+  const items = [
+    { to: '/shop', label: 'Shop', Icon: Shop, end: true },
+    { to: '/shop/orders', label: 'Orders', Icon: Clock },
+    { to: '/shop/bills', label: 'Bills', Icon: Receipt },
+    { to: '/more', label: 'More', Icon: Person },
+  ];
+  return (
+    <nav className="bottomnav">
+      {items.map(({ to, label, Icon, end }) => (
+        <NavLink key={to} to={to} end={end} className={({ isActive }) => (isActive ? 'on' : '')}>
+          {({ isActive }) => (
+            <>
+              <Icon size={21} color={isActive ? '#2b2019' : '#a89684'} />
+              <span>{label}</span>
+            </>
+          )}
+        </NavLink>
+      ))}
+    </nav>
+  );
+}
+
+function Shell() {
+  const { pathname } = useLocation();
+  const warm = pathname.startsWith('/shop');
+  const hideNav = /^\/(bill|invoice|setup)/.test(pathname) || pathname === '/shop/cart';
+  return (
+    <div className={'frame' + (warm ? ' warm' : '')}>
+      <Routes>
+        <Route path="/" element={<Today />} />
+        <Route path="/bill/:orderId?" element={<Billing />} />
+        <Route path="/invoice/:id" element={<InvoiceView />} />
+        <Route path="/route" element={<RouteScreen />} />
+        <Route path="/stock" element={<Catalog />} />
+        <Route path="/incoming" element={<Incoming />} />
+        <Route path="/dues" element={<Ledger />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/sync" element={<SyncScreen />} />
+        <Route path="/more" element={<More />} />
+        <Route path="/setup/business" element={<Business />} />
+        <Route path="/setup/team" element={<Team />} />
+        <Route path="/shop" element={<Browse />} />
+        <Route path="/shop/cart" element={<Cart />} />
+        <Route path="/shop/orders/:id?" element={<Track />} />
+        <Route path="/shop/bills" element={<Bills />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      {!hideNav && (warm ? <CustomerNav /> : <DealerNav />)}
+    </div>
+  );
+}
+
+export default function App() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    seedIfEmpty()
+      .then(() => setReady(true))
+      .catch((e) => {
+        console.error(e);
+        setReady(true);
+      });
+    if ('storage' in navigator && 'persist' in navigator.storage) {
+      navigator.storage.persist().catch(() => {});
+    }
+  }, []);
+  if (!ready) {
+    return (
+      <div className="frame" style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <span className="lbl">loading</span>
+      </div>
+    );
+  }
+  return (
+    <HashRouter>
+      <Shell />
+    </HashRouter>
+  );
+}
