@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db';
-import { bs, money } from '../../lib/domain';
+import { money, stamp } from '../../lib/domain';
 import { useShopRows } from '../../lib/hooks';
 import { Receipt, Check, Download } from '../../ui/icons';
 
@@ -72,7 +72,7 @@ export default function Bills() {
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
                 <span style={{ fontSize: 13.5, fontWeight: 600 }}>{i.number}</span>
-                <span style={{ fontSize: 11.5, color: 'var(--c-muted)' }}>{data!.supplierName[i.tenantId]} · {bs(i.issuedAt).dayMonth}</span>
+                <span style={{ fontSize: 11.5, color: 'var(--c-muted)' }}>{data!.supplierName[i.tenantId]} · {stamp(i.issuedAt)}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
                 <span className="disp" style={{ fontSize: 17, fontWeight: 600 }}>{money(i.total)}</span>
@@ -91,7 +91,7 @@ export default function Bills() {
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
                 <span style={{ fontSize: 13.5, fontWeight: 600 }}>{i.number}</span>
-                <span style={{ fontSize: 11.5, color: 'var(--c-muted)' }}>{data!.supplierName[i.tenantId]} · {bs(i.issuedAt).dayMonth} · {i.paymentType}</span>
+                <span style={{ fontSize: 11.5, color: 'var(--c-muted)' }}>{data!.supplierName[i.tenantId]} · {stamp(i.issuedAt)} · {i.paymentType}</span>
               </div>
               <span className="disp" style={{ fontSize: 17, fontWeight: 600, color: 'var(--c-muted)' }}>{money(i.total)}</span>
             </div>

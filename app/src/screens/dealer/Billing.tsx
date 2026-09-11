@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, type Customer, type Product } from '../../lib/db';
-import { addCustomer, allStock, currentPosition, issueInvoice, money, peekNextInvoiceNumber, vatOf } from '../../lib/domain';
+import { db, type Customer, type Order, type Product } from '../../lib/db';
+import { addCustomer, allStock, currentPosition, issueInvoice, money, peekNextInvoiceNumber, stamp, vatOf } from '../../lib/domain';
 import { useActiveUser, useOnline, useTenantId, useToast } from '../../lib/hooks';
-import { Back, Plus, Minus, Receipt, Alert, NoWifi, Sync, Search, Pin, Check } from '../../ui/icons';
+import { Back, Plus, Minus, Receipt, Alert, NoWifi, Sync, Search, Pin, Check, Clock } from '../../ui/icons';
 
 export default function Billing() {
   const { orderId } = useParams();
@@ -23,6 +23,15 @@ export default function Billing() {
   const [pinning, setPinning] = useState(false);
   const [search, setSearch] = useState('');
   const [busy, setBusy] = useState(false);
+  const [fromOrder, setFromOrder] = useState<Order | null>(null);
+
+  // The bill carries the moment it was issued, so show that moment ticking
+  // while it is being made — no one should have to guess what will be stamped.
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(t);
+  }, []);
 
   const base = useLiveQuery(async () => {
     if (!tenantId) return null;
@@ -47,6 +56,7 @@ export default function Billing() {
       const order = await db.orders.get(orderId);
       const lines = await db.orderLines.where('orderId').equals(orderId).toArray();
       if (cancelled || !order) return;
+      setFromOrder(order);
       setCustomerId(order.customerId);
       setQty(Object.fromEntries(lines.map((l) => [l.productId, l.qty])));
     })();
@@ -130,7 +140,7 @@ export default function Billing() {
         <button onClick={() => nav(-1)} aria-label="Back"><Back size={22} /></button>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
           <div style={{ fontSize: 16, fontWeight: 600 }}>New bill</div>
-          <div className="num" style={{ fontSize: 11, color: 'var(--muted)' }}>{nextNumber} · next in series</div>
+          <div className="num" style={{ fontSize: 11, color: 'var(--muted)' }}>{nextNumber} · {stamp(now)}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 8px', border: '1px solid var(--line)' }}>
           {online ? <Sync size={13} color="var(--ok)" /> : <NoWifi size={13} color="var(--bad)" />}
@@ -141,6 +151,15 @@ export default function Billing() {
       </header>
 
       <div className="scroll">
+        {fromOrder && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '11px 16px', background: 'var(--paper)', borderBottom: '1px solid var(--line)' }}>
+            <Clock size={14} color="var(--muted)" />
+            <span className="num" style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.4 }}>
+              From the shop's order · placed {stamp(fromOrder.placedAt)}
+              {fromOrder.deliverWindow ? ` · ${fromOrder.deliverWindow.toLowerCase()}` : ''}
+            </span>
+          </div>
+        )}
         <button
           onClick={() => setPicker('customer')}
           style={{ width: '100%', padding: '14px 16px', background: 'var(--card)', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}

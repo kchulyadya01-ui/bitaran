@@ -500,6 +500,16 @@ export function clock(at: number) {
   return new Date(at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
 }
 
+/** Date and time together, the way a bill or an order is stamped: "Bhadra 26 · 4:35 pm". */
+export function stamp(at: number) {
+  return `${bs(at).dayMonth} · ${clock(at)}`;
+}
+
+/** The same stamp on the invoice face, where the numeric BS date is the legal one. */
+export function stampFull(at: number) {
+  return `${bs(at).ymd} · ${clock(at)}`;
+}
+
 /** How a delivery deadline reads on a card: "in 3 h", "today by 5 pm", "2 h late". */
 export function dueLabel(deliverBy?: number) {
   if (!deliverBy) return { text: 'no time set', tone: 'muted' as const };

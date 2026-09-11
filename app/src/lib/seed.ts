@@ -7,7 +7,7 @@ const DAY = 86_400_000;
 const HOUR = 3_600_000;
 
 /** Bump when the seed shape changes, so old demo data is replaced rather than mixed. */
-const SEED_VERSION = 5;
+const SEED_VERSION = 6;
 
 const SEGMENTS: Omit<Segment, 'tenantId' | 'updatedAt' | 'updatedByDevice'>[] = [
   { id: 'seg-bennevis', name: 'Ben Nevis', sortOrder: 1 },
@@ -116,7 +116,7 @@ async function doSeed() {
     id: TENANT,
     name: 'G.K Suppliers Pvt. Ltd.',
     pan: '301122334',
-    address: 'Suryabinayak-4, Bhaktapur',
+    address: 'Kamalbinayak, Bhaktapur',
     phone: '01-6612345',
     vatRegistered: true,
     categories: SEGMENTS.map((s) => s.name),

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db';
-import { bs, money } from '../../lib/domain';
+import { bs, clock, money } from '../../lib/domain';
 import { amountInWords } from '../../lib/words';
 import { useTenant, useToast } from '../../lib/hooks';
 import { Back, Whats, Print, Download } from '../../ui/icons';
@@ -42,7 +42,7 @@ export default function InvoiceView() {
       tenant?.name,
       `PAN ${tenant?.pan}`,
       `TAX INVOICE ${invoice.number}`,
-      `Date ${bs(invoice.issuedAt).ymd} BS`,
+      `Date ${bs(invoice.issuedAt).ymd} BS · ${clock(invoice.issuedAt)}`,
       `Buyer: ${customer?.shopName} (PAN ${invoice.buyerPan})`,
       '',
       ...lines.map((l) => `${l.nameSnapshot} x${l.qty} @ ${money(l.rateSnapshot, true)} = ${money(l.lineTotal, true)}`),
@@ -88,10 +88,12 @@ export default function InvoiceView() {
               <div className="num" style={{ fontSize: 13, fontWeight: 600, marginTop: 3 }}>{invoice.number}</div>
             </div>
             <div style={{ flex: 1, padding: '10px 12px' }}>
-              <div className="lbl" style={{ fontSize: 9 }}>Date (B.S.)</div>
-              <div className="num" style={{ fontSize: 13, fontWeight: 600, marginTop: 3 }}>{bs(invoice.issuedAt).ymd}</div>
+              <div className="lbl" style={{ fontSize: 9 }}>Date &amp; time (B.S.)</div>
+              <div className="num" style={{ fontSize: 13, fontWeight: 600, marginTop: 3 }}>
+                {bs(invoice.issuedAt).ymd} · {clock(invoice.issuedAt)}
+              </div>
               <div className="num" style={{ fontSize: 10, color: 'var(--muted)' }}>
-                {new Date(invoice.issuedAt).toISOString().slice(0, 10)} A.D.
+                {new Date(invoice.issuedAt).toLocaleDateString('en-CA')} A.D.
               </div>
             </div>
           </div>

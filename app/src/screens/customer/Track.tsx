@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, STATUS_RANK, type OrderStatus } from '../../lib/db';
-import { bs, money, resolveStatus, vatOf } from '../../lib/domain';
+import { bs, money, resolveStatus, stamp, vatOf } from '../../lib/domain';
 import { useShopRows } from '../../lib/hooks';
 import { Van, Check, Whats, Chevron } from '../../ui/icons';
 
@@ -67,7 +67,7 @@ export default function Track() {
             Order {bs(order.placedAt).year}-{String(order.placedAt).slice(-4)}
           </span>
           <span style={{ fontSize: 12, color: 'var(--c-muted)' }}>
-            {supplier?.name.replace(' Pvt. Ltd.', '')} · placed {new Date(order.placedAt).toLocaleString([], { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}
+            {supplier?.name.replace(' Pvt. Ltd.', '')} · placed {stamp(order.placedAt)}
           </span>
         </div>
         {orders.length > 1 && (
@@ -119,7 +119,7 @@ export default function Track() {
                   <div style={{ flex: 1, paddingBottom: last ? 0 : 22, display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <span style={{ fontSize: 14, fontWeight: 600, color: current ? 'var(--c-accent)' : done ? 'var(--c-ink)' : 'var(--c-faint)' }}>{s.label}</span>
                     <span style={{ fontSize: 11.5, color: done ? 'var(--c-muted)' : 'var(--c-faint)' }}>
-                      {at ? new Date(at).toLocaleString([], { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : s.blank}
+                      {at ? stamp(at) : s.blank}
                     </span>
                   </div>
                 </div>

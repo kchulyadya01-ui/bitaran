@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type OrderStatus } from '../../lib/db';
-import { bs, money, resolveStatus, allBalances, dueLabel } from '../../lib/domain';
+import { bs, money, resolveStatus, allBalances, dueLabel, stamp } from '../../lib/domain';
 import { useTenant, useTenantId, usePending, useOnline } from '../../lib/hooks';
-import { Sync, NoWifi, Plus, Clock } from '../../ui/icons';
+import { Sync, NoWifi, Plus, Clock, Van } from '../../ui/icons';
 
 type Tab = 'new' | 'billed' | 'out' | 'done';
 
@@ -142,7 +142,7 @@ export default function Today() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, width: '100%' }}>
                     <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-                      {r.itemCount} items · {r.invoice ? r.invoice.number : new Date(r.placedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {r.itemCount} items · {r.invoice ? r.invoice.number : 'no bill yet'}
                     </span>
                     <span style={{
                       fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 7px',
@@ -151,18 +151,26 @@ export default function Today() {
                       {hot ? 'MAKE BILL' : r.status === 'confirmed' ? 'BILLED' : r.status === 'out_for_delivery' ? 'ON VAN' : 'DONE'}
                     </span>
                   </div>
-                  {r.deliverBy && r.status !== 'delivered' && (() => {
-                    const due = dueLabel(r.deliverBy);
-                    const c = due.tone === 'bad' ? 'var(--bad)' : due.tone === 'warn' ? 'var(--warn)' : 'var(--muted)';
-                    return (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', paddingTop: 2, borderTop: '1px solid var(--hair)', marginTop: 2 }}>
-                        <Clock size={13} color={c} />
-                        <span className="num" style={{ fontSize: 11.5, color: c, fontWeight: due.tone === 'muted' ? 400 : 600 }}>
-                          deliver {due.text}
-                        </span>
-                      </div>
-                    );
-                  })()}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5, width: '100%', paddingTop: 6, borderTop: '1px solid var(--hair)', marginTop: 2 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Clock size={13} color="var(--muted)" />
+                      <span className="num" style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                        ordered {stamp(r.placedAt)}
+                      </span>
+                    </div>
+                    {r.deliverBy && r.status !== 'delivered' && (() => {
+                      const due = dueLabel(r.deliverBy);
+                      const c = due.tone === 'bad' ? 'var(--bad)' : due.tone === 'warn' ? 'var(--warn)' : 'var(--muted)';
+                      return (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <Van size={13} color={c} />
+                          <span className="num" style={{ fontSize: 11.5, color: c, fontWeight: due.tone === 'muted' ? 400 : 600 }}>
+                            deliver {due.text}
+                          </span>
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </button>
               );
             })}
