@@ -136,15 +136,11 @@ class Component extends DCLogic {
         countStyle: 'font-size:15px; font-weight:600; color:' + (on ? '#16181a' : '#6b6f76') + ';'
       };
     });
-    const tabStyled = tabs.map((t) => ({
-      label: t.label, count: t.count, pick: t.pick, countStyle: t.countStyle,
-      style: t.style
-    }));
     const orders = all.filter((o) => o.tab === this.state.tab).map((o) => ({
       shop: o.shop, items: o.items, amount: o.amount, badge: o.badge, tone: o.tone,
       badgeStyle: 'font-size:10px; font-weight:700; letter-spacing:0.08em; padding:4px 7px; border:1px solid ' + o.tone + '; color:' + (o.hot ? '#ffffff' : o.tone) + '; background:' + (o.hot ? '#16181a' : 'transparent') + ';'
     }));
-    return { tabs: tabStyled, orders, isEmpty: orders.length === 0, signal: this.props.signal ?? '#8a5a00' };
+    return { tabs: tabs, orders, isEmpty: orders.length === 0, signal: this.props.signal ?? '#8a5a00' };
   }
 }
 </script>
