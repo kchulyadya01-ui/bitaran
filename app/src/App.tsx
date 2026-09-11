@@ -31,8 +31,8 @@ import Team from './screens/setup/Team';
 const SUPPLIER_NAV = [
   { to: '/', label: 'Orders', Icon: Box, end: true },
   { to: '/pack', label: 'Pack', Icon: Van },
-  { to: '/dues', label: 'Dues', Icon: Bars },
   { to: '/route', label: 'Route', Icon: Pin },
+  { to: '/dues', label: 'Dues', Icon: Bars },
   { to: '/stock', label: 'Stock', Icon: Grid },
   { to: '/more', label: 'More', Icon: Receipt },
 ];
