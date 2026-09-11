@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db';
-import { addProduct, addSegment, allStock, money, renameSegment, updateProductPrice } from '../../lib/domain';
+import { addProduct, addSegment, allStock, money, renameSegment, setStock, updateProductPrice } from '../../lib/domain';
 import { useTenantId, useToast } from '../../lib/hooks';
 import { Search, Plus, Grid } from '../../ui/icons';
 
 type Sheet =
   | { kind: 'none' }
   | { kind: 'segment'; editing?: { id: string; name: string } }
-  | { kind: 'product'; segmentId: string; segmentName: string };
+  | { kind: 'product'; segmentId: string; segmentName: string }
+  | { kind: 'stock'; productId: string; name: string; unit: string; have: number };
 
 export default function Catalog() {
   const tenantId = useTenantId();
@@ -21,6 +22,7 @@ export default function Catalog() {
 
   const [segName, setSegName] = useState('');
   const [form, setForm] = useState({ name: '', unit: 'pc', price: '', low: '', opening: '' });
+  const [stockDraft, setStockDraft] = useState('');
 
   const data = useLiveQuery(async () => {
     if (!tenantId) return null;
@@ -70,6 +72,16 @@ export default function Catalog() {
       setToast(`${segName.trim()} added`);
     }
     setSegName('');
+    setSheet({ kind: 'none' });
+  }
+
+  async function submitStock() {
+    if (sheet.kind !== 'stock') return;
+    const n = Number(stockDraft);
+    if (!Number.isFinite(n) || n < 0) return;
+    const diff = n - sheet.have;
+    await setStock(sheet.productId, n);
+    setToast(diff === 0 ? 'No change' : `${sheet.name}: ${diff > 0 ? '+' : ''}${diff} ${sheet.unit}`);
     setSheet({ kind: 'none' });
   }
 
@@ -164,9 +176,13 @@ export default function Catalog() {
                           Rs {money(p.price)}
                         </button>
                       )}
-                      <span className="num" style={{ fontSize: 11, color: out ? 'var(--bad)' : low ? 'var(--warn)' : 'var(--muted)', fontWeight: out || low ? 600 : 400 }}>
+                      <button
+                        className="num"
+                        style={{ fontSize: 11, color: out ? 'var(--bad)' : low ? 'var(--warn)' : 'var(--muted)', fontWeight: out || low ? 700 : 600, textDecoration: 'underline dotted' }}
+                        onClick={() => { setStockDraft(String(have)); setSheet({ kind: 'stock', productId: p.id, name: p.name, unit: p.unit, have }); }}
+                      >
                         {have} {p.unit}
-                      </span>
+                      </button>
                     </div>
                   </div>
                 );
@@ -242,6 +258,35 @@ export default function Catalog() {
               <input style={{ flex: 1 }} type="number" value={form.low} onChange={(e) => setForm({ ...form, low: e.target.value })} placeholder="Warn below" />
             </div>
             <button className="btn" disabled={!form.name.trim() || !Number(form.price)} onClick={submitProduct}>Add item</button>
+            <button className="btn ghost" onClick={() => setSheet({ kind: 'none' })}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {sheet.kind === 'stock' && (
+        <div className="sheet-back" onClick={() => setSheet({ kind: 'none' })}>
+          <div className="sheet" onClick={(e) => e.stopPropagation()}>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 600 }}>{sheet.name}</div>
+              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4, lineHeight: 1.5 }}>
+                Set what's really on the shelf — after a count, a delivery, or damage. Currently {sheet.have} {sheet.unit}.
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <input
+                autoFocus type="number" inputMode="numeric" value={stockDraft}
+                onChange={(e) => setStockDraft(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && submitStock()}
+                style={{ flex: 1, fontSize: 20, fontWeight: 600 }}
+              />
+              <span className="num" style={{ fontSize: 13, color: 'var(--muted)' }}>{sheet.unit}</span>
+            </div>
+            {Number.isFinite(Number(stockDraft)) && Number(stockDraft) !== sheet.have && (
+              <div className="num" style={{ fontSize: 12, color: Number(stockDraft) > sheet.have ? 'var(--ok)' : 'var(--bad)', fontWeight: 600 }}>
+                {Number(stockDraft) > sheet.have ? '+' : ''}{Math.round((Number(stockDraft) - sheet.have) * 100) / 100} {sheet.unit}
+              </div>
+            )}
+            <button className="btn" disabled={!stockDraft.trim() || Number(stockDraft) < 0} onClick={submitStock}>Save count</button>
             <button className="btn ghost" onClick={() => setSheet({ kind: 'none' })}>Cancel</button>
           </div>
         </div>

@@ -336,7 +336,7 @@ export async function receiveIncoming(incomingId: string) {
   if (!inc || inc.status === 'received') return;
   const lines = await db.incomingLines.where('incomingId').equals(incomingId).toArray();
   const now = Date.now();
-  await db.transaction('rw', [db.incoming, db.stockEvents, db.outbox, db.auditLog], async () => {
+  await db.transaction('rw', [db.incoming, db.stockEvents, db.outbox, db.auditLog, db.meta], async () => {
     await db.incoming.put({ ...inc, status: 'received', receivedAt: now });
     await db.stockEvents.bulkAdd(
       lines.map((l) => ({
@@ -352,13 +352,36 @@ export async function receiveIncoming(incomingId: string) {
   });
 }
 
+/**
+ * Dealer sets the true count by hand — a recount, a delivery not logged
+ * through Incoming, damaged stock written off. Recorded as one adjustment
+ * event carrying the difference, same as every other stock movement; never
+ * overwrites the running total directly.
+ */
+export async function setStock(productId: string, newQty: number) {
+  const tenantId = (await getMeta<string>('activeTenantId'))!;
+  const userId = (await getMeta<string>('activeUserId'))!;
+  const have = await stockOnHand(productId);
+  const delta = Math.round((newQty - have) * 100) / 100;
+  if (delta === 0) return;
+  const row = {
+    id: uid(), tenantId, productId, delta,
+    reason: 'adjustment' as const, occurredAt: Date.now(), createdBy: userId,
+  };
+  await db.transaction('rw', [db.stockEvents, db.outbox, db.auditLog, db.meta], async () => {
+    await db.stockEvents.add(row);
+    await enqueue('stockEvent', 'insert', row);
+    await audit('adjust_stock', 'product', productId, row);
+  });
+}
+
 /** Class 2 edit: last write wins, and the superseded value is kept. */
 export async function updateProductPrice(productId: string, price: number) {
   const deviceId = (await getMeta<string>('deviceId'))!;
   const p = await db.products.get(productId);
   if (!p || p.price === price) return;
   const now = Date.now();
-  await db.transaction('rw', [db.products, db.fieldHistory, db.outbox, db.auditLog], async () => {
+  await db.transaction('rw', [db.products, db.fieldHistory, db.outbox, db.auditLog, db.meta], async () => {
     await db.fieldHistory.add({
       id: uid(), entity: 'product', entityId: productId, field: 'price',
       oldValue: String(p.price), newValue: String(price), changedAt: now, changedByDevice: deviceId,

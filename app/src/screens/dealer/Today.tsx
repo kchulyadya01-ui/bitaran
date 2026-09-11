@@ -162,7 +162,7 @@ export default function Today() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: -6 }}>
             {visible.map((r) => {
               const hot = r.status === 'placed';
-              const tone = hot ? 'var(--ink)' : r.status === 'confirmed' ? 'var(--ok)' : r.status === 'out_for_delivery' ? 'var(--warn)' : '#c9c9c2';
+              const tone = hot ? 'var(--accent)' : r.status === 'confirmed' ? 'var(--ok)' : r.status === 'out_for_delivery' ? 'var(--warn)' : '#c9c9c2';
               return (
                 <button
                   key={r.id}
@@ -180,7 +180,7 @@ export default function Today() {
                     </span>
                     <span style={{
                       fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', padding: '4px 9px', borderRadius: 999,
-                      border: `1px solid ${tone}`, color: hot ? '#fff' : tone, background: hot ? 'var(--ink)' : 'transparent',
+                      border: `1px solid ${tone}`, color: hot ? '#fff' : tone, background: hot ? 'var(--accent)' : 'transparent',
                     }}>
                       {hot ? 'MAKE BILL' : r.status === 'confirmed' ? 'BILLED' : r.status === 'out_for_delivery' ? 'ON VAN' : 'DONE'}
                     </span>

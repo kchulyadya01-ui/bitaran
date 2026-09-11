@@ -9,8 +9,10 @@
   --faint: #9aa0a6;
   --line: #d9d9d3;
   --hair: #eeeee8;
-  --ok: #0a5c36;
-  --ok-soft: #4a9c74;
+  --ok: #2f8f5b;
+  --ok-soft: #dcf1e4;
+  --accent: #ff8a3d;
+  --accent-soft: #ffe6d2;
   --warn: #8a5a00;
   --bad: #b3261e;
   --bad-soft: #fdf3f2;
@@ -33,6 +35,20 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* Every tap gets the same quiet press-down feedback — buttons, links, nav
+   items. Skip it on disabled controls and on the stepper's own buttons,
+   which already move via their parent. */
+button:not([disabled]), a, .chip, .row {
+  transition: transform 0.1s ease, opacity 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+button:not([disabled]):active, a:active { transform: scale(0.97); }
+.card { transition: box-shadow 0.15s ease, transform 0.15s ease; }
+button.card:not([disabled]):active { transform: scale(0.98); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheetUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes toastUp { from { transform: translate(-50%, 8px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 
 html, body, #root { height: 100%; }
 
@@ -74,7 +90,7 @@ a { color: var(--ok); }
 }
 .frame.warm { background: var(--c-paper); color: var(--c-ink); }
 
-.scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; scroll-behavior: smooth; }
 
 .topbar {
   padding: calc(16px + env(safe-area-inset-top)) 16px 14px;
@@ -88,13 +104,13 @@ a { color: var(--ok); }
 .title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
 
 .btn {
-  height: 56px; background: var(--ink); color: #fff;
+  height: 56px; background: var(--ok); color: #fff; box-shadow: var(--shadow);
   font-size: 15px; font-weight: 600; border-radius: 999px;
   display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
 }
 .btn:active { opacity: 0.85; }
-.btn[disabled] { background: #c9c9c2; color: #fff; cursor: not-allowed; }
-.btn.ghost { background: var(--card); color: var(--ink); border: 1.5px solid var(--ink); }
+.btn[disabled] { background: #c9c9c2; color: #fff; cursor: not-allowed; box-shadow: none; }
+.btn.ghost { background: var(--card); color: var(--ink); border: 1.5px solid var(--ink); box-shadow: none; }
 .btn.warm { background: var(--c-ok); color: #fff; height: 58px; box-shadow: var(--c-shadow); }
 .btn.warm.ghost { background: var(--c-card); color: var(--c-ink); border: 1.5px solid var(--c-line); }
 
@@ -139,7 +155,7 @@ a { color: var(--ok); }
   padding: 10px 16px; font-size: 12px; font-weight: 600; border-radius: 999px;
   background: var(--card); border: 1px solid var(--line); color: var(--muted); box-shadow: var(--shadow);
 }
-.chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
 .warm .chip { padding: 10px 17px; font-size: 12.5px; background: var(--c-card); border-color: var(--c-line); color: var(--c-muted); box-shadow: var(--c-shadow); }
 .warm .chip.on { background: var(--c-accent); color: #fff; border-color: var(--c-accent); }
 
@@ -148,7 +164,7 @@ a { color: var(--ok); }
   flex: 1; padding: 10px 4px; display: flex; flex-direction: column; align-items: center; gap: 3px;
   border-bottom: none; border-radius: 999px; font-size: 13px;
 }
-.tabs button.on { background: var(--ink); color: #fff; font-weight: 600; }
+.tabs button.on { background: var(--accent); color: #fff; font-weight: 600; }
 
 .empty { padding: 28px 16px; text-align: center; color: var(--muted); font-size: 13px; border: 1.5px dashed var(--line); border-radius: 18px; }
 
@@ -158,17 +174,20 @@ a { color: var(--ok); }
   background: var(--ink); color: #fff; padding: 12px 20px; font-size: 13.5px; font-weight: 500;
   border-radius: 999px; box-shadow: var(--shadow);
   z-index: 50; max-width: 90vw; text-align: center;
+  animation: toastUp 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .sheet-back {
   position: fixed; inset: 0; background: rgba(22,24,26,0.45); z-index: 40;
   display: flex; align-items: flex-end; justify-content: center;
+  animation: fadeIn 0.18s ease;
 }
 .sheet {
   background: var(--card); width: 100%; max-width: 460px;
   border-radius: 26px 26px 0 0;
   padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
   display: flex; flex-direction: column; gap: 14px;
+  animation: sheetUp 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 input[type="text"], input[type="tel"], input[type="number"] {
