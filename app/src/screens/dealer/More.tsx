@@ -15,10 +15,11 @@ export default function More() {
   const users = useLiveQuery(async () => (tenantId ? db.users.where('tenantId').equals(tenantId).toArray() : []), [tenantId], []);
 
   const links = [
+    { to: '/bills', label: 'Bill book', sub: 'every bill you have issued', Icon: Receipt },
     { to: '/incoming', label: 'Incoming stock', sub: 'what the Main Dealer is sending', Icon: Grid },
     { to: '/reports', label: 'Reports', sub: 'sales, best sellers, dues', Icon: Bars },
     { to: '/sync', label: 'Sync queue', sub: 'what is waiting to go out', Icon: Sync },
-    { to: '/setup/business', label: 'Business details', sub: 'name, PAN, address', Icon: Receipt },
+    { to: '/setup/business', label: 'Business details', sub: 'name, PAN, address', Icon: Shop },
     { to: '/setup/team', label: 'Team', sub: 'who can bill, and their series', Icon: Person },
   ];
 

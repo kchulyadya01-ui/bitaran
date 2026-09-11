@@ -7,7 +7,7 @@ const DAY = 86_400_000;
 const HOUR = 3_600_000;
 
 /** Bump when the seed shape changes, so old demo data is replaced rather than mixed. */
-const SEED_VERSION = 6;
+const SEED_VERSION = 7;
 
 const SEGMENTS: Omit<Segment, 'tenantId' | 'updatedAt' | 'updatedByDevice'>[] = [
   { id: 'seg-bennevis', name: 'Ben Nevis', sortOrder: 1 },
@@ -178,7 +178,11 @@ async function doSeed() {
   const fy = fiscalYearOf();
   let seq = 1;
   for (const h of history) {
-    const at = now - h.daysAgo * DAY;
+    // Bills carry their clock time now, so put the demo ones inside working
+    // hours instead of whatever time the app happened to be opened.
+    const day = new Date(now - h.daysAgo * DAY);
+    day.setHours(9 + ((seq * 3) % 8), (seq * 17) % 60, 0, 0);
+    const at = day.getTime();
     const id = uid();
     const priced = h.lines.map(([productId, qty]) => {
       const p = PRODUCTS.find((x) => x.id === productId)!;

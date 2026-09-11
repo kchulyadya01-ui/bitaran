@@ -9,6 +9,7 @@ import Welcome from './screens/Welcome';
 import Today from './screens/dealer/Today';
 import Billing from './screens/dealer/Billing';
 import InvoiceView from './screens/dealer/InvoiceView';
+import BillBook from './screens/dealer/BillBook';
 import Pack from './screens/dealer/Pack';
 import RouteScreen from './screens/dealer/RouteScreen';
 import Catalog from './screens/dealer/Catalog';
@@ -107,6 +108,7 @@ function Shell() {
           <Route path="/" element={<Today />} />
           <Route path="/bill/:orderId?" element={<Billing />} />
           <Route path="/invoice/:id" element={<InvoiceView />} />
+          <Route path="/bills" element={<BillBook />} />
           <Route path="/pack" element={<Pack />} />
           <Route path="/route" element={<RouteScreen />} />
           <Route path="/stock" element={<Catalog />} />
