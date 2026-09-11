@@ -17,7 +17,6 @@ import Incoming from './screens/dealer/Incoming';
 import Ledger from './screens/dealer/Ledger';
 import Reports from './screens/dealer/Reports';
 import SyncScreen from './screens/dealer/SyncScreen';
-import More from './screens/dealer/More';
 
 import Browse from './screens/customer/Browse';
 import Cart from './screens/customer/Cart';
@@ -34,7 +33,6 @@ const SUPPLIER_NAV = [
   { to: '/route', label: 'Route', Icon: Pin },
   { to: '/dues', label: 'Dues', Icon: Bars },
   { to: '/stock', label: 'Stock', Icon: Grid },
-  { to: '/more', label: 'More', Icon: Receipt },
 ];
 
 const CUSTOMER_NAV = [
@@ -116,7 +114,6 @@ function Shell() {
           <Route path="/dues" element={<Ledger />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/sync" element={<SyncScreen />} />
-          <Route path="/more" element={<More />} />
           <Route path="/setup/business" element={<Business />} />
           <Route path="/setup/team" element={<Team />} />
 

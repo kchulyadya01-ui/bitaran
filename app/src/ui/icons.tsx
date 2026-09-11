@@ -64,6 +64,9 @@ export const Info = ({ size, color, w }: P) => (
 export const Note = ({ size, color, w }: P) => (
   <svg {...base(size, color, w)}><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 20.5l1.5-4.2A8.4 8.4 0 0 1 3.6 12a8.4 8.4 0 0 1 8.4-8.5h.5a8.4 8.4 0 0 1 8.5 8z" /></svg>
 );
+export const Menu = ({ size, color, w }: P) => (
+  <svg {...base(size, color, w)}><line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" /></svg>
+);
 export const Chevron = ({ size, color, w }: P) => (
   <svg {...base(size, color, w ?? 2.4)}><polyline points="9 5 16 12 9 19" /></svg>
 );

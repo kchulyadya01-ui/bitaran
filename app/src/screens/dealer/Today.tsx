@@ -4,7 +4,8 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type OrderStatus } from '../../lib/db';
 import { bs, money, resolveStatus, allBalances, dueLabel, setMeta, stamp } from '../../lib/domain';
 import { useTenant, useTenantId, usePending, useOnline, useMeta } from '../../lib/hooks';
-import { Sync, NoWifi, Plus, Clock, Van, Check, Chevron, Note } from '../../ui/icons';
+import MoreMenu from '../../ui/MoreMenu';
+import { Sync, NoWifi, Plus, Clock, Van, Check, Chevron, Note, Menu } from '../../ui/icons';
 
 type Tab = 'new' | 'billed' | 'out' | 'done';
 
@@ -37,6 +38,7 @@ export default function Today() {
   const online = useOnline();
   const [tab, setTab] = useState<Tab>('new');
   const [sortOpen, setSortOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   // Kept in Dexie so the choice survives making a bill and coming back.
   const sortId = useMeta<SortId>('orderSort') ?? 'due';
   const sort = SORTS.find((s) => s.id === sortId) ?? SORTS[0];
@@ -96,12 +98,24 @@ export default function Today() {
     <>
       <header className="topbar" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-            <div className="title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {tenant?.name.replace(' Pvt. Ltd.', '') ?? 'Loading'}
-            </div>
-            <div className="num" style={{ fontSize: 11, color: 'var(--muted)' }}>
-              {tenant?.address.split(',').pop()?.trim()} · {bs().ymd}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+            <button
+              onClick={() => setMenuOpen(true)}
+              aria-label="More"
+              style={{
+                width: 34, height: 34, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 999,
+              }}
+            >
+              <Menu size={17} color="var(--ink)" />
+            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+              <div className="title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {tenant?.name.replace(' Pvt. Ltd.', '') ?? 'Loading'}
+              </div>
+              <div className="num" style={{ fontSize: 11, color: 'var(--muted)' }}>
+                {tenant?.address.split(',').pop()?.trim()} · {bs().ymd}
+              </div>
             </div>
           </div>
           <Link
@@ -119,6 +133,8 @@ export default function Today() {
           </Link>
         </div>
       </header>
+
+      <MoreMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <div className="scroll">
         <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
