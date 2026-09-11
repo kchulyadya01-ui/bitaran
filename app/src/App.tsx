@@ -5,6 +5,8 @@ import { useAppRole } from './lib/hooks';
 import { Box, Receipt, Pin, Grid, Bars, Shop, Clock, Person, Van } from './ui/icons';
 
 import Welcome from './screens/Welcome';
+import Signup from './screens/Signup';
+import Login from './screens/Login';
 import Splash from './screens/Splash';
 
 import Today from './screens/dealer/Today';
@@ -70,8 +72,9 @@ function Shell() {
   if (role === 'loading') return <Splash />;
 
   const onWelcome = pathname === '/welcome';
+  const onAuth = onWelcome || pathname.startsWith('/signup') || pathname === '/login';
   const customerPath = pathname.startsWith('/shop');
-  const warm = customerPath || (role === 'customer' && !onWelcome);
+  const warm = customerPath || (role === 'customer' && !onAuth);
 
   // The two sides are separate products sharing a database. Keep them apart.
   // The role lives in Dexie, so it arrives a tick after it is written. Let the
@@ -79,8 +82,8 @@ function Shell() {
   // optimistically and bouncing back here.
   let redirect: string | null = null;
   if (role === 'none') {
-    if (!onWelcome) redirect = '/welcome';
-  } else if (onWelcome) {
+    if (!onAuth) redirect = '/welcome';
+  } else if (onAuth) {
     redirect = role === 'customer' ? '/shop' : '/';
   } else if (role === 'customer' && !customerPath) {
     redirect = '/shop';
@@ -88,7 +91,7 @@ function Shell() {
     redirect = '/';
   }
 
-  const hideNav = onWelcome || /^\/(bill|invoice|setup)/.test(pathname) || pathname === '/shop/cart';
+  const hideNav = onAuth || /^\/(bill|invoice|setup)/.test(pathname) || pathname === '/shop/cart';
 
   return (
     <div className={'frame' + (warm ? ' warm' : '')}>
@@ -97,6 +100,8 @@ function Shell() {
       ) : (
         <Routes>
           <Route path="/welcome" element={<Welcome />} />
+          <Route path="/signup/:role" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
 
           <Route path="/" element={<Today />} />
           <Route path="/bill/:orderId?" element={<Billing />} />

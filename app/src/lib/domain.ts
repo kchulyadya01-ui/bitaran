@@ -588,4 +588,118 @@ export function dueLabel(deliverBy?: number) {
   return { text: `${word} by ${time}`, tone: 'muted' as const };
 }
 
+// ---------------------------------------------------------------------------
+// On-device accounts. No server exists yet — signing up and logging in only
+// prove "same phone, same password" against this device's own database.
+// ---------------------------------------------------------------------------
+
+async function hashPassword(pw: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export async function findAccountByEmail(email: string) {
+  const e = email.trim().toLowerCase();
+  return (await db.accounts.toArray()).find((a) => a.email === e);
+}
+
+export interface SignupDetails {
+  shopName: string;
+  pan: string;
+  contactName: string;
+  phone: string;
+  address: string;
+  lat?: number;
+  lng?: number;
+  email: string;
+  password: string;
+}
+
+/** A supplier signing up starts a brand-new business — its own tenant, catalog, customers. */
+export async function signupSupplier(opts: SignupDetails) {
+  const email = opts.email.trim().toLowerCase();
+  if (await findAccountByEmail(email)) throw new Error('An account already exists for this email.');
+  const deviceId = (await getMeta<string>('deviceId')) ?? uid();
+  const passHash = await hashPassword(opts.password);
+  const tenantId = uid();
+  const userId = uid();
+  const accountId = uid();
+  const now = Date.now();
+  await db.transaction('rw', [db.tenants, db.users, db.accounts, db.outbox, db.auditLog, db.meta], async () => {
+    await setMeta('deviceId', deviceId);
+    await db.tenants.add({
+      id: tenantId, name: opts.shopName.trim(), pan: opts.pan.trim(),
+      address: opts.address.trim(), phone: opts.phone.trim(), vatRegistered: false, categories: [],
+    });
+    await db.users.add({
+      id: userId, tenantId, name: opts.contactName.trim(), phone: opts.phone.trim(),
+      role: 'owner', prefix: 'A', delivers: true,
+    });
+    await setMeta('activeTenantId', tenantId);
+    await setMeta('activeUserId', userId);
+    await db.accounts.add({
+      id: accountId, role: 'supplier', email, passHash,
+      shopName: opts.shopName.trim(), pan: opts.pan.trim(), contactName: opts.contactName.trim(),
+      phone: opts.phone.trim(), address: opts.address.trim(), lat: opts.lat ?? 0, lng: opts.lng ?? 0,
+      tenantId, userId, createdAt: now,
+    });
+    await db.outbox.add({ id: uid(), entity: 'account', op: 'insert', payload: { accountId }, createdAt: now, attempts: 0 });
+  });
+  await setMeta('activeAccountId', accountId);
+  await setMeta('appRole', 'supplier');
+}
+
+/** A customer signing up registers their shop and, if a supplier already exists on this device, links to it. */
+export async function signupCustomer(opts: SignupDetails) {
+  const email = opts.email.trim().toLowerCase();
+  if (await findAccountByEmail(email)) throw new Error('An account already exists for this email.');
+  const deviceId = (await getMeta<string>('deviceId')) ?? uid();
+  const passHash = await hashPassword(opts.password);
+  const accountId = uid();
+  const now = Date.now();
+  const tenant = (await db.tenants.toArray())[0];
+  let customerId: string | undefined;
+  await db.transaction('rw', [db.customers, db.accounts, db.outbox, db.auditLog, db.meta], async () => {
+    await setMeta('deviceId', deviceId);
+    if (tenant) {
+      const row = await addCustomer({
+        tenantId: tenant.id, shopName: opts.shopName, contactName: opts.contactName,
+        phone: opts.phone, pan: opts.pan, address: opts.address, lat: opts.lat, lng: opts.lng,
+      });
+      customerId = row.id;
+      await setMeta('customerTenantId', tenant.id);
+      await setMeta('activeCustomerId', row.id);
+    }
+    await setMeta('shopPhone', opts.phone.trim());
+    await db.accounts.add({
+      id: accountId, role: 'customer', email, passHash,
+      shopName: opts.shopName.trim(), pan: opts.pan.trim(), contactName: opts.contactName.trim(),
+      phone: opts.phone.trim(), address: opts.address.trim(), lat: opts.lat ?? 0, lng: opts.lng ?? 0,
+      tenantId: tenant?.id, customerId, createdAt: now,
+    });
+    await db.outbox.add({ id: uid(), entity: 'account', op: 'insert', payload: { accountId }, createdAt: now, attempts: 0 });
+  });
+  await setMeta('activeAccountId', accountId);
+  await setMeta('appRole', 'customer');
+}
+
+/** Restores the session this account was last using. */
+export async function login(email: string, password: string) {
+  const acc = await findAccountByEmail(email);
+  if (!acc) throw new Error('No account with that email on this device.');
+  const passHash = await hashPassword(password);
+  if (passHash !== acc.passHash) throw new Error('Wrong password.');
+  if (acc.role === 'supplier') {
+    await setMeta('activeTenantId', acc.tenantId);
+    await setMeta('activeUserId', acc.userId);
+  } else {
+    await setMeta('shopPhone', acc.phone);
+    if (acc.tenantId) await setMeta('customerTenantId', acc.tenantId);
+    if (acc.customerId) await setMeta('activeCustomerId', acc.customerId);
+  }
+  await setMeta('activeAccountId', acc.id);
+  await setMeta('appRole', acc.role);
+  return acc;
+}
+
 export { getMeta, setMeta };

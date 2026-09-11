@@ -235,6 +235,32 @@ export interface OutboxItem {
   lastError?: string;
 }
 
+/**
+ * On-device login. No server exists yet, so this is a local gate only — it
+ * proves "same person, same phone", not a verified identity. Password is
+ * stored as a SHA-256 hash, never plain text.
+ */
+export interface Account {
+  id: string;
+  role: 'supplier' | 'customer';
+  email: string;
+  passHash: string;
+  shopName: string;
+  pan: string;
+  contactName: string;
+  phone: string;
+  address: string;
+  lat: number;
+  lng: number;
+  /** supplier: the tenant this account owns. customer: last-used supplier. */
+  tenantId?: string;
+  /** supplier only: their AppUser row. */
+  userId?: string;
+  /** customer only: their Customer row for tenantId. */
+  customerId?: string;
+  createdAt: number;
+}
+
 export interface Meta {
   key: string;
   value: unknown;
@@ -263,6 +289,7 @@ class AppDb extends Dexie {
   incoming!: Table<Incoming, string>;
   incomingLines!: Table<IncomingLine, string>;
   fieldHistory!: Table<FieldHistory, string>;
+  accounts!: Table<Account, string>;
   outbox!: Table<OutboxItem, string>;
   meta!: Table<Meta, string>;
   counters!: Table<Counter, string>;
@@ -297,6 +324,10 @@ class AppDb extends Dexie {
     // v3: picking list — what has been pulled off the shelf for each order.
     this.version(3).stores({
       picks: 'id, tenantId, orderId, productId',
+    });
+    // v4: on-device login — one account per person, supplier or customer.
+    this.version(4).stores({
+      accounts: 'id, email, role',
     });
   }
 }

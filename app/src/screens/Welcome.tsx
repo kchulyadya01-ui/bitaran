@@ -1,16 +1,14 @@
-import { setMeta } from '../lib/db';
-import { useTenant } from '../lib/hooks';
+import { useNavigate, Link } from 'react-router-dom';
 import { Van } from '../ui/icons';
 
 /**
- * First run: the app is two products sharing one database. Pick a side and the
- * whole shell — navigation, skin, permissions — follows from it.
+ * First run: Bitaran is one app, two sides — suppliers and the shops they
+ * deliver to. G.K Suppliers is just one supplier account on it, not the app
+ * itself. Pick a side, then set up an account for it.
  */
 export default function Welcome() {
-  const tenant = useTenant();
-
-  // Write the choice only; the shell redirects as soon as it reads it back.
-  const choose = (role: 'supplier' | 'customer') => setMeta('appRole', role);
+  const nav = useNavigate();
+  const choose = (role: 'supplier' | 'customer') => nav(`/signup/${role}`);
 
   return (
     <div
@@ -41,10 +39,10 @@ export default function Welcome() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <span className="disp" style={{ fontSize: 30, fontWeight: 600, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.01em' }}>
-            One app,<br />all of {tenant?.name.replace(' Pvt. Ltd.', '') ?? 'Bitaran'}
+            One app,<br />suppliers &amp; shops
           </span>
           <span style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>
-            Choose how you use it. You can switch sides any time from More.
+            Are you delivering stock, or ordering it? Pick a side and set up your account.
           </span>
         </div>
 
@@ -63,8 +61,12 @@ export default function Welcome() {
           </button>
         </div>
 
+        <Link to="/login" style={{ textAlign: 'center', fontSize: 12.5, color: 'rgba(255,255,255,0.75)', textDecoration: 'none' }}>
+          Already have an account? <span style={{ color: 'var(--accent)', fontWeight: 600 }}>Log in</span>
+        </Link>
+
         <span style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 1.5 }}>
-          Demo build — both sides share one device. On real phones each person signs in to their own.
+          Demo build — accounts live only on this phone. There is no real server yet.
         </span>
       </div>
     </div>
