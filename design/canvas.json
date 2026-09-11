@@ -1,0 +1,34 @@
+{
+  "pages": [
+    { "id": "page-1", "name": "Dealer" },
+    { "id": "page-2", "name": "Customer" },
+    { "id": "page-3", "name": "Setup" }
+  ],
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "page": "page-1", "title": "Today", "is_interactive": true },
+    { "file": "Billing.dc.html", "x": 490, "y": 0, "w": 390, "h": 844, "page": "page-1", "title": "Make a bill", "is_interactive": true },
+    { "file": "Invoice.dc.html", "x": 980, "y": 0, "w": 390, "h": 844, "page": "page-1", "title": "Tax invoice" },
+    { "file": "Delivery.dc.html", "x": 1470, "y": 0, "w": 390, "h": 844, "page": "page-1", "title": "Route", "is_interactive": true },
+    { "file": "SyncOffline.dc.html", "x": 1960, "y": 0, "w": 390, "h": 844, "page": "page-1", "title": "Offline queue" },
+    { "file": "Catalog.dc.html", "x": 0, "y": 1010, "w": 390, "h": 844, "page": "page-1", "title": "Stock & prices" },
+    { "file": "IncomingStock.dc.html", "x": 490, "y": 1010, "w": 390, "h": 844, "page": "page-1", "title": "Incoming stock" },
+    { "file": "Ledger.dc.html", "x": 980, "y": 1010, "w": 390, "h": 844, "page": "page-1", "title": "Dues" },
+    { "file": "Reports.dc.html", "x": 1470, "y": 1010, "w": 390, "h": 844, "page": "page-1", "title": "Reports" },
+
+    { "file": "CustomerBrowse.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "page": "page-2", "title": "Browse", "is_interactive": true },
+    { "file": "CustomerCart.dc.html", "x": 490, "y": 0, "w": 390, "h": 844, "page": "page-2", "title": "Place order", "is_interactive": true },
+    { "file": "CustomerTrack.dc.html", "x": 980, "y": 0, "w": 390, "h": 844, "page": "page-2", "title": "Track" },
+    { "file": "CustomerBills.dc.html", "x": 1470, "y": 0, "w": 390, "h": 844, "page": "page-2", "title": "Bills & balance" },
+
+    { "file": "Signup.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "page": "page-3", "title": "Business signup" },
+    { "file": "TeamDevices.dc.html", "x": 490, "y": 0, "w": 390, "h": 844, "page": "page-3", "title": "Team" }
+  ],
+  "annotations": [
+    { "id": "flow-note", "x": 0, "y": -150, "w": 880, "page": "page-1", "text": "The daily loop, left to right: see orders → make the bill → hand over the invoice → drive the route.\nDealer skin is deliberately plain: near-black on paper, mono numerals, 56px buttons. Readable in sunlight, one thumb, moving van." },
+    { "id": "offline-note", "x": 1960, "y": -150, "w": 390, "page": "page-1", "text": "Offline is a screen, not a spinner.\nThe queue is visible, and price clashes between two phones are shown rather than silently resolved." },
+    { "id": "tap-note", "x": 490, "y": 900, "w": 390, "page": "page-1", "text": "Try it: the +/− steppers on Make a bill recalculate VAT live, and Cash/Credit switches the warning. Route ticks stops off." },
+    { "id": "customer-note", "x": 0, "y": -150, "w": 880, "page": "page-2", "text": "Customer skin is the warm one — paper tones, serif numbers, drawn product art (placeholder until real photos exist).\nOrdering is wholesale, so every tile is a quantity stepper, not an Add button." },
+    { "id": "setup-note", "x": 0, "y": -150, "w": 880, "page": "page-3", "text": "Multi-tenant: any distributor signs up, gets their own catalog, customers, PAN and bill series.\nTeam is unlimited — every person who bills gets their own series letter, which is what makes offline billing collision-proof." }
+  ],
+  "launch": { "view": "canvas", "page": "page-1" }
+}

@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap">
+  <style>
+    body { margin:0; font-family:'IBM Plex Sans','Noto Sans Devanagari',system-ui,sans-serif; background:#f4f4f1; color:#16181a; -webkit-font-smoothing:antialiased; }
+    a { color:#0a5c36; } a:hover { color:#074026; }
+    .num { font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums; letter-spacing:-0.01em; }
+    .lbl { font-size:10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6b6f76; }
+  </style>
+</helmet>
+<div style="width:390px; height:844px; display:flex; flex-direction:column; background:#f4f4f1; overflow:hidden;">
+
+  <div style="padding:18px 16px 0; background:#ffffff; display:flex; flex-direction:column; gap:14px;">
+    <div style="font-size:17px; font-weight:600;">Reports</div>
+    <div style="display:flex; border-bottom:1px solid #d9d9d3;">
+      <div style="padding:10px 2px; margin-right:20px; font-size:13.5px; color:#6b6f76; cursor:pointer;">Today</div>
+      <div style="padding:10px 2px; margin-right:20px; font-size:13.5px; font-weight:600; border-bottom:2px solid #16181a; cursor:pointer;">This week</div>
+      <div style="padding:10px 2px; font-size:13.5px; color:#6b6f76; cursor:pointer;">Month</div>
+    </div>
+  </div>
+
+  <div style="flex:1; overflow:hidden; padding:14px 16px; display:flex; flex-direction:column; gap:12px;">
+
+    <div style="background:#ffffff; border:1px solid #d9d9d3; padding:16px; display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px;">
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <div class="lbl">Sales, Bhadra 20-26</div>
+          <div class="num" style="font-size:30px; font-weight:600; line-height:1;">Rs 3,30,000</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:5px; padding-bottom:3px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0a5c36" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 16 10 9 14 13 20 6"></polyline><polyline points="20 11 20 6 15 6"></polyline></svg>
+          <span class="num" style="font-size:13px; font-weight:600; color:#0a5c36;">+12%</span>
+        </div>
+      </div>
+
+      <svg width="326" height="152" viewBox="0 0 326 152" style="display:block; width:100%; height:auto;">
+        <line x1="0" y1="120" x2="326" y2="120" stroke="#e4e2da" stroke-width="1"></line>
+        <line x1="0" y1="35" x2="290" y2="35" stroke="#c9c9c2" stroke-width="1" stroke-dasharray="3 4"></line>
+        <text x="326" y="38" font-family="IBM Plex Mono, monospace" font-size="9" fill="#9aa0a6" text-anchor="end">avg</text>
+
+        <path d="M4 120 L4 55.5 Q4 51.5 8 51.5 L38 51.5 Q42 51.5 42 55.5 L42 120 Z" fill="#7fb79a"></path>
+        <path d="M51 120 L51 30.2 Q51 26.2 55 26.2 L85 26.2 Q89 26.2 89 30.2 L89 120 Z" fill="#7fb79a"></path>
+        <path d="M97 120 L97 44.7 Q97 40.7 101 40.7 L131 40.7 Q135 40.7 135 44.7 L135 120 Z" fill="#7fb79a"></path>
+        <path d="M144 120 L144 14 Q144 10 148 10 L178 10 Q182 10 182 14 L182 120 Z" fill="#0a5c36"></path>
+        <path d="M191 120 L191 39.2 Q191 35.2 195 35.2 L225 35.2 Q229 35.2 229 39.2 L229 120 Z" fill="#7fb79a"></path>
+        <path d="M237 120 L237 24.8 Q237 20.8 241 20.8 L271 20.8 Q275 20.8 275 24.8 L275 120 Z" fill="#7fb79a"></path>
+        <path d="M284 120 L284 64.5 Q284 60.5 288 60.5 L318 60.5 Q322 60.5 322 64.5 L322 120 Z" fill="#c8ddd2"></path>
+
+        <text x="163" y="4" font-family="IBM Plex Mono, monospace" font-size="10.5" font-weight="600" fill="#16181a" text-anchor="middle">61,400</text>
+
+        <g font-family="IBM Plex Sans, sans-serif" font-size="10" fill="#6b6f76" text-anchor="middle">
+          <text x="23" y="136">Sat</text>
+          <text x="70" y="136">Sun</text>
+          <text x="116" y="136">Mon</text>
+          <text x="163" y="136" font-weight="600" fill="#16181a">Tue</text>
+          <text x="210" y="136">Wed</text>
+          <text x="256" y="136">Thu</text>
+          <text x="303" y="136">Fri</text>
+        </g>
+        <text x="303" y="148" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="#9aa0a6" text-anchor="middle">so far</text>
+      </svg>
+    </div>
+
+    <div style="background:#ffffff; border:1px solid #d9d9d3; padding:16px; display:flex; flex-direction:column; gap:13px;">
+      <div class="lbl">Best sellers this week</div>
+
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px;">
+          <span style="font-size:13.5px; font-weight:600;">Cornetto Choco Vanilla</span>
+          <span class="num" style="font-size:12.5px; color:#6b6f76;">612 pc</span>
+        </div>
+        <div style="height:6px; background:#eeeee8;"><div style="width:100%; height:6px; background:#0a5c36;"></div></div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px;">
+          <span style="font-size:13.5px; font-weight:600;">Wai Wai Chicken 75g</span>
+          <span class="num" style="font-size:12.5px; color:#6b6f76;">540 pkt</span>
+        </div>
+        <div style="height:6px; background:#eeeee8;"><div style="width:88%; height:6px; background:#7fb79a;"></div></div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px;">
+          <span style="font-size:13.5px; font-weight:600;">Chocobar 60ml</span>
+          <span class="num" style="font-size:12.5px; color:#6b6f76;">418 pc</span>
+        </div>
+        <div style="height:6px; background:#eeeee8;"><div style="width:68%; height:6px; background:#7fb79a;"></div></div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:10px;">
+          <span style="font-size:13.5px; font-weight:600;">Family Pack Vanilla 1L</span>
+          <span class="num" style="font-size:12.5px; color:#6b6f76;">96 box</span>
+        </div>
+        <div style="height:6px; background:#eeeee8;"><div style="width:31%; height:6px; background:#7fb79a;"></div></div>
+      </div>
+    </div>
+
+    <div style="background:#ffffff; border:1px solid #d9d9d3; padding:14px 16px; display:flex; align-items:center; gap:12px; cursor:pointer;">
+      <div style="flex:1; display:flex; flex-direction:column; gap:3px;">
+        <div style="font-size:13.5px; font-weight:600;">Outstanding dues</div>
+        <div class="num" style="font-size:11.5px; color:#6b6f76;">14 shops &middot; 38,900 over 30 days</div>
+      </div>
+      <div class="num" style="font-size:17px; font-weight:600;">1,24,500</div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="2.4" stroke-linecap="round"><polyline points="9 5 16 12 9 19"></polyline></svg>
+    </div>
+
+    <div style="flex:1;"></div>
+  </div>
+
+  <div style="background:#ffffff; border-top:1px solid #d9d9d3; padding:12px 16px 16px;">
+    <button style="width:100%; height:52px; background:#ffffff; color:#16181a; border:1.5px solid #16181a; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#16181a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      Export for accountant
+    </button>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

@@ -11,6 +11,7 @@ Scope: settles the four unresolved questions that change the shape of the code, 
 | # | Question | Decision |
 |---|----------|----------|
 | 1 | Platform | Installable PWA (React + Vite + TypeScript). Not React Native. |
+| 1b | Who can use it | **Multi-tenant.** Any distribution business signs up and gets its own catalog, customers, stock, PAN and invoice series. Unlimited users per business. |
 | 2 | Invoice numbering across two offline devices | Per-device invoice series with a fixed prefix, reset each Nepali fiscal year. |
 | 3 | IRD e-billing / CBMS | Not required at this turnover, but build to the Computerized Invoicing Procedure 2072 rules from day one so approval is possible later without a rewrite. |
 | 4 | Conflict resolution | Append-only event log for anything financial. Last-write-wins only for genuinely editable descriptive fields. Never for money. |
@@ -43,7 +44,7 @@ Reconsider native only if: the phones turn out to be iPhones *and* storage persi
 
 ### The problem
 
-Two partners, two phones, both potentially offline, both issuing tax invoices. A single shared counter cannot work: if both devices are offline and each issues "Invoice 47", two different customers hold two different documents with the same legal number. That is unrecoverable after the fact, because the paper is already with the customer.
+Any number of people in a business may issue tax invoices from their own phones, and any of them may be offline. A single shared counter cannot work: if two devices are offline and each issues "Invoice 47", two different customers hold two different documents with the same legal number. That is unrecoverable after the fact, because the paper is already with the customer.
 
 ### Options considered
 
@@ -51,19 +52,19 @@ Two partners, two phones, both potentially offline, both issuing tax invoices. A
 
 **B. Server pre-allocates blocks of numbers to each device.** Each device is handed, say, numbers 1–100 while online, and consumes them offline. Keeps one unified series. The cost is gaps: if device A syncs after using 30 of its 100, numbers 31–100 are dead. Gaps in a VAT invoice series are exactly what an auditor asks about, and every gap needs explaining.
 
-**C. Per-device series with a fixed prefix.** Each device owns its own unbroken sequence:
+**C. Per-biller series with a fixed prefix.** Each billing device owns its own unbroken sequence:
 
 ```
-A-2082-0001, A-2082-0002, A-2082-0003, ...   (partner 1's phone)
-B-2082-0001, B-2082-0002, ...                (partner 2's phone)
+A-2083-0001, A-2083-0002, A-2083-0003, ...   (biller A)
+B-2083-0001, B-2083-0002, ...                (biller B)
 ```
 
-No collisions, no gaps, no coordination needed, and it works with zero connectivity forever. This is the same shape as issuing separate physical bill books to two salespeople, which is a long-established and accepted practice.
+No collisions, no gaps, no coordination needed, and it works with zero connectivity forever, for any number of billers. This is the same shape as issuing separate physical bill books to several salespeople, which is a long-established and accepted practice.
 
 ### Decision: Option C
 
 Rules:
-- The device prefix is assigned once, at device registration, and is stored server-side. A device cannot pick its own prefix.
+- The prefix is assigned by the server when a user is granted billing rights, in order (A, B, C, ...), scoped to the tenant. A device can never pick its own prefix, and a prefix is never reassigned to a different person even after they leave.
 - The sequence is strictly incrementing with no gaps, per device, per Nepali fiscal year (Shrawan 1 to Ashar end). It resets to 0001 at the start of each fiscal year.
 - The counter lives in IndexedDB and is incremented inside the same transaction that writes the invoice. It can never be edited from the UI.
 - A cancelled invoice **keeps its number**. It is never reused and never removed. See section 4.
@@ -71,7 +72,7 @@ Rules:
 
 ### Action required before launch
 
-**The two series must be declared to the tax office.** A tax officer seeing two parallel series needs to know both belong to this business and why. This is a form-and-conversation task, not a code task, and it is cheap to do up front and expensive to fix after six months of bills. Listed as an open question for the accountant.
+**The parallel series must be declared to the tax office.** A tax officer seeing several parallel series needs to know they all belong to this business and why. This is a form-and-conversation task, not a code task, and it is cheap to do up front and expensive to fix after six months of bills. Listed as an open question for the accountant.
 
 Fallback if the tax office refuses parallel series: switch to Option B (block allocation) and accept explaining gaps. The code should keep number generation behind a single module so this swap is a one-file change.
 
@@ -83,7 +84,7 @@ Fallback if the tax office refuses parallel series: switch to Option B (block al
 
 **VAT registration** is mandatory for a goods business once turnover passes **NPR 50 lakh** on a rolling 12-month basis. A food distribution dealership will cross this, so assume the business is or will be VAT-registered and that every sale needs a proper tax invoice.
 
-**CBMS (Central Billing Monitoring System)** — the real-time link that reports every invoice to the IRD as it is issued — is threshold-based. The threshold has been lowered repeatedly (NPR 25 crore, then 20 crore, and per the FY 2083/84 budget, **NPR 10 crore** annual turnover; NPR 5 crore for hotels, restaurants and canteens). A small two-partner distributor is well under 10 crore.
+**CBMS (Central Billing Monitoring System)** — the real-time link that reports every invoice to the IRD as it is issued — is threshold-based. The threshold has been lowered repeatedly (NPR 25 crore, then 20 crore, and per the FY 2083/84 budget, **NPR 10 crore** annual turnover; NPR 5 crore for hotels, restaurants and canteens). A small distributor of this size is well under 10 crore. Because the app is multi-tenant, this must be tracked per business, not assumed once.
 
 **This is the critical finding: CBMS does not apply at this size, so offline-first billing is legally fine.** If CBMS applied, offline invoicing would be impossible by definition, because the invoice must reach the IRD in real time. The whole offline architecture depends on staying under that threshold.
 
@@ -167,6 +168,12 @@ If both partners sell the last carton while offline, stock goes negative on sync
 
 ---
 
+### Tenancy and the sync boundary
+
+Multi-tenancy changes the sync protocol in exactly one place: the server sequence cursor is **per tenant**, not global. A client pulls `WHERE tenant_id = :mine AND server_seq > :cursor`. Everything else — the outbox, UUIDv7 keys, idempotent upserts, the append-only event model — is unchanged, because it was never coordinating across businesses in the first place.
+
+The invoice counter is local to a device and scoped to `(tenant_id, prefix, fiscal_year)`.
+
 ## 5. Sync protocol
 
 Local IndexedDB is the source of truth on the Dealer device. The server is a synchronisation point and a backup, not a gatekeeper.
@@ -242,7 +249,7 @@ react-i18next            English / Nepali
 
 **Why not Next.js:** server rendering buys nothing here. The Dealer app must run entirely from cache with no server. A plain SPA is simpler to make correctly offline. The customer-facing catalog would benefit from SSR for SEO, but shop customers arrive via a direct link or QR code, not search.
 
-**Auth.** Dealer side: email and password for two known users. Customer side: phone number and PIN, avoiding per-message SMS OTP costs at this scale. Revisit OTP if impersonation becomes a real concern.
+**Auth and tenancy.** Every row in every table carries `tenant_id`, and every query is scoped by it — enforced in Postgres with Row Level Security, not in application code, so a missed `WHERE` clause cannot leak another business's customers or prices. Dealer side: phone or email plus password, with roles (`owner`, `biller`, `rider`) deciding what each person sees. Customer side: phone number and PIN, avoiding per-message SMS OTP costs at this scale; revisit OTP if impersonation becomes a real concern. A customer shop can belong to more than one distributor, so the customer account is global and its link to a tenant is a separate row.
 
 **Maps and routing.** Leaflet with OpenStreetMap tiles, which cover Bhaktapur well and cost nothing. Tiles for the service area bounding box at zoom 13–17 are pre-cached into IndexedDB on a Wi-Fi connection, so the map renders with no signal. Route ordering runs locally: nearest-neighbour seeded, then 2-opt improvement, over straight-line distances. Straight-line distance is an approximation, but for a compact delivery area it produces a sensible stop order, and the Dealer can drag to reorder. No routing API, so no cost and no connectivity requirement.
 
@@ -254,6 +261,6 @@ react-i18next            English / Nepali
 
 1. Which phones do the two partners use — Android or iPhone? Decides how hard we push on storage persistence warnings. (Android: low risk. iPhone: needs the install-to-home-screen flow to be mandatory.)
 2. Confirmation that two parallel invoice series are acceptable to their tax office — see `compliance-nepal.md`.
-3. Is the business already VAT-registered, and what is its PAN? Needed on every invoice.
-4. Current annual turnover, to confirm distance from the NPR 10 crore CBMS threshold.
+3. Is the first business already VAT-registered, and what is its PAN? Needed on every invoice.
+4. Current annual turnover, to confirm distance from the NPR 10 crore CBMS threshold. Note this is now a **per-tenant** question: the app must track each business's own turnover against the threshold and warn its owner, since one tenant crossing it does not affect the others.
 5. Does the Main Dealer supply anything machine-readable (a PDF, an SMS, a WhatsApp message with a fixed shape)? If so, incoming stock logging could be partly parsed rather than fully typed. Manual entry ships first regardless.

@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap">
+  <style>
+    body { margin:0; font-family:'IBM Plex Sans','Noto Sans Devanagari',system-ui,sans-serif; background:#f4f4f1; color:#16181a; -webkit-font-smoothing:antialiased; }
+    a { color:#0a5c36; } a:hover { color:#074026; }
+    .num { font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums; letter-spacing:-0.01em; }
+  </style>
+</helmet>
+<div style="width:390px; height:844px; display:flex; flex-direction:column; background:#f4f4f1; overflow:hidden;">
+
+  <div style="padding:20px 16px 12px; background:#ffffff; border-bottom:1px solid #d9d9d3; display:flex; flex-direction:column; gap:12px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <div style="font-size:17px; font-weight:600; letter-spacing:-0.01em;">Himal Distributors</div>
+        <div class="num" style="font-size:11px; color:#6b6f76;">Bhaktapur &middot; 2083/05/26</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px; padding:7px 10px; background:#fdf6e3; border:1px solid #e8d9a8; border-radius:2px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{signal}}" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3.5-7.1"></path><polyline points="21 3 21 9 15 9"></polyline></svg>
+        <span class="num" style="font-size:12px; font-weight:600; color:#8a5a00;">3 pending</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:16px; display:flex; flex-direction:column; gap:14px; flex:1; overflow:hidden;">
+
+    <div style="display:flex; gap:10px;">
+      <div style="flex:1; background:#16181a; color:#ffffff; padding:14px; display:flex; flex-direction:column; gap:4px;">
+        <div style="font-size:11px; font-weight:500; color:#9aa0a6; text-transform:uppercase; letter-spacing:0.08em;">Orders today</div>
+        <div class="num" style="font-size:34px; font-weight:600; line-height:1;">12</div>
+      </div>
+      <div style="flex:1.4; background:#ffffff; border:1px solid #d9d9d3; padding:14px; display:flex; flex-direction:column; gap:4px;">
+        <div style="font-size:11px; font-weight:500; color:#6b6f76; text-transform:uppercase; letter-spacing:0.08em;">To collect</div>
+        <div class="num" style="font-size:28px; font-weight:600; line-height:1;">48,200</div>
+        <div class="num" style="font-size:11px; color:#b3261e; font-weight:500;">+ 1,24,500 overdue</div>
+      </div>
+    </div>
+
+    <div style="display:flex; background:#ffffff; border:1px solid #d9d9d3;">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <div style="{{t.style}}" onClick="{{t.pick}}">
+          <span>{{t.label}}</span>
+          <span class="num" style="{{t.countStyle}}">{{t.count}}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:8px; flex:1; overflow:hidden;">
+      <sc-for list="{{orders}}" as="o" hint-placeholder-count="4">
+        <div style="background:#ffffff; border:1px solid #d9d9d3; border-left:3px solid {{o.tone}}; padding:13px 14px; display:flex; flex-direction:column; gap:8px; min-height:44px;">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
+            <div style="font-size:15px; font-weight:600; letter-spacing:-0.01em;">{{o.shop}}</div>
+            <div class="num" style="font-size:15px; font-weight:600;">{{o.amount}}</div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <div style="font-size:12px; color:#6b6f76;">{{o.items}}</div>
+            <div style="{{o.badgeStyle}}">{{o.badge}}</div>
+          </div>
+        </div>
+      </sc-for>
+      <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+        <div style="padding:28px 16px; text-align:center; color:#6b6f76; font-size:13px; border:1px dashed #d9d9d3;">Nothing here right now</div>
+      </sc-if>
+    </div>
+
+    <button style="height:56px; background:#16181a; color:#ffffff; border:none; font-family:inherit; font-size:15px; font-weight:600; letter-spacing:0.01em; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      New bill &middot; बिल बनाउने
+    </button>
+  </div>
+
+  <div style="display:flex; background:#ffffff; border-top:1px solid #d9d9d3; padding:8px 0 14px;">
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; cursor:pointer;">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#16181a" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.3 7 12 12 20.7 7"></polyline><line x1="12" y1="22" x2="12" y2="12"></line></svg>
+      <span style="font-size:10px; font-weight:600;">Orders</span>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; cursor:pointer;">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#6b6f76" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2.5-1.6L9 22l3-1.6L15 22l2.5-1.6L20 22V2l-2.5 1.6L15 2l-3 1.6L9 2 6.5 3.6z"></path><line x1="8" y1="9" x2="16" y2="9"></line><line x1="8" y1="14" x2="13" y2="14"></line></svg>
+      <span style="font-size:10px; color:#6b6f76;">Bills</span>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; cursor:pointer;">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#6b6f76" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 13-9 13S3 16 3 10a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+      <span style="font-size:10px; color:#6b6f76;">Route</span>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; cursor:pointer;">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#6b6f76" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+      <span style="font-size:10px; color:#6b6f76;">Stock</span>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; cursor:pointer;">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#6b6f76" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="4" y2="12"></line><line x1="10" y1="20" x2="10" y2="4"></line><line x1="16" y1="20" x2="16" y2="9"></line><line x1="22" y1="20" x2="22" y2="15"></line></svg>
+      <span style="font-size:10px; color:#6b6f76;">Dues</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"signal":{"editor":"color","default":"#8a5a00","options":["#8a5a00","#0a5c36","#b3261e","#16181a"],"section":"Theme"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'new' };
+  }
+  renderVals() {
+    const all = [
+      { tab:'new', shop:'Shyam Kirana Pasal', items:'6 items · placed 09:12', amount:'4,820', badge:'CONFIRM', tone:'#16181a', hot:true },
+      { tab:'new', shop:'Sagarmatha Store', items:'3 items · placed 09:40', amount:'1,960', badge:'CONFIRM', tone:'#16181a', hot:true },
+      { tab:'new', shop:'Nyatapola Cold Store', items:'11 items · placed 10:02', amount:'12,400', badge:'CONFIRM', tone:'#16181a', hot:true },
+      { tab:'new', shop:'Durbar Square Snacks', items:'2 items · placed 10:15', amount:'880', badge:'CONFIRM', tone:'#16181a', hot:true },
+      { tab:'ready', shop:'Bhaktapur Dairy Corner', items:'8 items · bill A-2083-0116', amount:'7,340', badge:'BILLED', tone:'#0a5c36', hot:false },
+      { tab:'ready', shop:'Taumadhi Mart', items:'4 items · bill A-2083-0117', amount:'3,100', badge:'BILLED', tone:'#0a5c36', hot:false },
+      { tab:'ready', shop:'Suryabinayak Traders', items:'9 items · bill A-2083-0118', amount:'9,650', badge:'BILLED', tone:'#0a5c36', hot:false },
+      { tab:'out', shop:'Thimi Fresh House', items:'stop 2 of 7 · 2.1 km', amount:'5,420', badge:'ON VAN', tone:'#8a5a00', hot:false },
+      { tab:'out', shop:'Kamalbinayak Store', items:'stop 3 of 7 · 2.8 km', amount:'2,240', badge:'ON VAN', tone:'#8a5a00', hot:false },
+      { tab:'done', shop:'Dattatreya Kirana', items:'delivered 08:55 · cash', amount:'3,180', badge:'PAID', tone:'#c9c9c2', hot:false },
+      { tab:'done', shop:'Byasi Chowk Shop', items:'delivered 09:20 · credit', amount:'6,900', badge:'CREDIT', tone:'#b3261e', hot:false }
+    ];
+    const defs = [
+      { id:'new', label:'New', count:4 },
+      { id:'ready', label:'Billed', count:3 },
+      { id:'out', label:'On van', count:2 },
+      { id:'done', label:'Done', count:2 }
+    ];
+    const tabs = defs.map((t) => {
+      const on = this.state.tab === t.id;
+      return {
+        label: t.label,
+        count: t.count,
+        pick: () => this.setState({ tab: t.id }),
+        style: 'flex:1; padding:12px 4px; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; border-bottom:2px solid ' + (on ? '#16181a' : 'transparent') + '; background:' + (on ? '#f4f4f1' : '#ffffff') + ';',
+        countStyle: 'font-size:15px; font-weight:600; color:' + (on ? '#16181a' : '#6b6f76') + ';'
+      };
+    });
+    const tabStyled = tabs.map((t) => ({
+      label: t.label, count: t.count, pick: t.pick, countStyle: t.countStyle,
+      style: t.style
+    }));
+    const orders = all.filter((o) => o.tab === this.state.tab).map((o) => ({
+      shop: o.shop, items: o.items, amount: o.amount, badge: o.badge, tone: o.tone,
+      badgeStyle: 'font-size:10px; font-weight:700; letter-spacing:0.08em; padding:4px 7px; border:1px solid ' + o.tone + '; color:' + (o.hot ? '#ffffff' : o.tone) + '; background:' + (o.hot ? '#16181a' : 'transparent') + ';'
+    }));
+    return { tabs: tabStyled, orders, isEmpty: orders.length === 0, signal: this.props.signal ?? '#8a5a00' };
+  }
+}
+</script>
+</body>
+</html>

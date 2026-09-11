@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap">
+  <style>
+    body { margin:0; font-family:'IBM Plex Sans','Noto Sans Devanagari',system-ui,sans-serif; background:#f4f4f1; color:#16181a; -webkit-font-smoothing:antialiased; }
+    a { color:#0a5c36; } a:hover { color:#074026; }
+    .num { font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums; letter-spacing:-0.01em; }
+    .lbl { font-size:10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#6b6f76; }
+  </style>
+</helmet>
+<div style="width:390px; height:844px; display:flex; flex-direction:column; background:#f4f4f1; overflow:hidden;">
+
+  <div style="padding:18px 16px 14px; background:#ffffff; border-bottom:1px solid #d9d9d3; display:flex; flex-direction:column; gap:14px;">
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+      <div style="font-size:17px; font-weight:600;">Stock &amp; prices</div>
+      <div style="display:flex; align-items:center; gap:6px; padding:7px 10px; border:1px solid #d9d9d3; cursor:pointer;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16181a" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span style="font-size:12px; font-weight:600;">Item</span>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:9px; background:#f4f4f1; border:1px solid #d9d9d3; padding:12px 13px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6f76" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16" y2="16"></line></svg>
+      <span style="font-size:14px; color:#9aa0a6;">Search 84 items</span>
+    </div>
+    <div style="display:flex; gap:7px;">
+      <div style="padding:8px 12px; background:#16181a; color:#ffffff; font-size:12px; font-weight:600;">All</div>
+      <div style="padding:8px 12px; background:#ffffff; border:1px solid #d9d9d3; color:#6b6f76; font-size:12px; font-weight:600;">Ice cream</div>
+      <div style="padding:8px 12px; background:#ffffff; border:1px solid #b3261e; color:#b3261e; font-size:12px; font-weight:600;">Low &middot; 6</div>
+    </div>
+  </div>
+
+  <div style="flex:1; overflow:hidden; display:flex; flex-direction:column; gap:1px; background:#d9d9d3;">
+
+    <div style="background:#fdf3f2; padding:13px 16px; display:flex; align-items:center; gap:12px;">
+      <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
+        <div style="font-size:14.5px; font-weight:600;">Kurkure Masala Munch</div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="num" style="font-size:11px; font-weight:700; color:#b3261e;">OUT OF STOCK</span>
+          <span class="num" style="font-size:11px; color:#6b6f76;">&middot; 40 pkt arriving Bhadra 28</span>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+        <div class="num" style="font-size:15px; font-weight:600;">Rs 20</div>
+        <div class="num" style="font-size:11px; color:#b3261e; font-weight:600;">0 pkt</div>
+      </div>
+    </div>
+
+    <div style="background:#ffffff; padding:13px 16px; display:flex; align-items:center; gap:12px;">
+      <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
+        <div style="font-size:14.5px; font-weight:600;">Chocobar 60ml</div>
+        <div class="num" style="font-size:11px; color:#8a5a00; font-weight:600;">LOW &middot; below 50 pc</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+        <div class="num" style="font-size:15px; font-weight:600;">Rs 45</div>
+        <div class="num" style="font-size:11px; color:#8a5a00; font-weight:600;">36 pc</div>
+      </div>
+    </div>
+
+    <div style="background:#ffffff; padding:13px 16px; display:flex; align-items:center; gap:12px;">
+      <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
+        <div style="font-size:14.5px; font-weight:600;">Cornetto Choco Vanilla</div>
+        <div class="num" style="font-size:11px; color:#6b6f76;">price changed 2 days ago &middot; was Rs 75</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+        <div class="num" style="font-size:15px; font-weight:600;">Rs 80</div>
+        <div class="num" style="font-size:11px; color:#6b6f76;">180 pc</div>
+      </div>
+    </div>
+
+    <div style="background:#ffffff; padding:13px 16px; display:flex; align-items:center; gap:12px;">
+      <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
+        <div style="font-size:14.5px; font-weight:600;">Family Pack Vanilla 1L</div>
+        <div class="num" style="font-size:11px; color:#6b6f76;">best seller this week</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+        <div class="num" style="font-size:15px; font-weight:600;">Rs 420</div>
+        <div class="num" style="font-size:11px; color:#6b6f76;">64 box</div>
+      </div>
+    </div>
+
+    <div style="background:#ffffff; padding:13px 16px; display:flex; align-items:center; gap:12px;">
+      <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
+        <div style="font-size:14.5px; font-weight:600;">Lays Classic Salted 52g</div>
+        <div class="num" style="font-size:11px; color:#6b6f76;">&nbsp;</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+        <div class="num" style="font-size:15px; font-weight:600;">Rs 55</div>
+        <div class="num" style="font-size:11px; color:#6b6f76;">210 pkt</div>
+      </div>
+    </div>
+
+    <div style="background:#ffffff; padding:13px 16px; display:flex; align-items:center; gap:12px;">
+      <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
+        <div style="font-size:14.5px; font-weight:600;">Wai Wai Chicken 75g</div>
+        <div class="num" style="font-size:11px; color:#6b6f76;">&nbsp;</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+        <div class="num" style="font-size:15px; font-weight:600;">Rs 25</div>
+        <div class="num" style="font-size:11px; color:#6b6f76;">480 pkt</div>
+      </div>
+    </div>
+
+    <div style="background:#f4f4f1; flex:1;"></div>
+  </div>
+
+  <div style="background:#ffffff; border-top:1px solid #d9d9d3; padding:12px 16px 16px; display:flex; align-items:center; gap:10px;">
+    <div style="flex:1; display:flex; flex-direction:column; gap:2px;">
+      <div class="num" style="font-size:12px; color:#6b6f76;">Stock value</div>
+      <div class="num" style="font-size:18px; font-weight:600;">Rs 3,82,400</div>
+    </div>
+    <button style="height:52px; padding:0 20px; background:#16181a; color:#ffffff; border:none; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;">Stock count</button>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

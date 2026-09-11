@@ -10,14 +10,14 @@ Below each question is what our own research found, so the answer can be a confi
 
 ### 1. Can we use two parallel invoice number series, one per partner?
 
-**Why we ask.** Both partners issue bills from their own phones, often with no mobile network in the delivery areas. A single shared numbering counter cannot work offline: both phones would independently issue the same number to different customers, and the bills are already in the customers' hands by the time the phones reconnect.
+**Why we ask.** Several people issue bills from their own phones, often with no mobile network in the delivery areas. A single shared numbering counter cannot work offline: both phones would independently issue the same number to different customers, and the bills are already in the customers' hands by the time the phones reconnect.
 
 **What we propose.** Each phone gets its own unbroken series with a fixed prefix, reset each fiscal year:
 
-- Partner 1: `A-2082-0001`, `A-2082-0002`, …
-- Partner 2: `B-2082-0001`, `B-2082-0002`, …
+- Biller 1: `A-2083-0001`, `A-2083-0002`, …
+- Biller 2: `B-2083-0001`, `B-2083-0002`, …
 
-Each series is strictly sequential with no gaps. This mirrors giving two salespeople two separate physical bill books.
+Each series is strictly sequential with no gaps. This mirrors giving each salesperson their own physical bill book.
 
 **What we need to know.** Is this acceptable to our tax office, and does it need to be declared or registered with them in advance? If parallel series are not allowed, we will use a single series with number blocks pre-assigned to each phone — but that method leaves unused gaps in the sequence, which we would then need to be able to explain at assessment.
 

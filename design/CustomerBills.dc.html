@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap">
+  <style>
+    body { margin:0; font-family:'IBM Plex Sans','Noto Sans Devanagari',system-ui,sans-serif; background:#fbf5ec; color:#2b2019; -webkit-font-smoothing:antialiased; }
+    a { color:#b4532a; } a:hover { color:#8e3f1f; }
+    .disp { font-family:'Newsreader',Georgia,'Times New Roman',serif; }
+    .np { font-family:'Noto Sans Devanagari','IBM Plex Sans',sans-serif; }
+    .bill { background:#fffdf8; border:1px solid #e6dccd; border-radius:14px; padding:15px 16px; display:flex; align-items:center; gap:13px; cursor:pointer; }
+  </style>
+</helmet>
+<div style="width:390px; height:844px; display:flex; flex-direction:column; background:#fbf5ec; overflow:hidden;">
+
+  <div style="padding:20px 18px 14px;">
+    <div class="disp" style="font-size:22px; font-weight:500;">Bills &amp; balance</div>
+  </div>
+
+  <div style="padding:0 18px 14px;">
+    <div style="background:#7a3d22; border-radius:16px; padding:20px; display:flex; flex-direction:column; gap:16px;">
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px;">
+        <div style="display:flex; flex-direction:column; gap:5px;">
+          <div class="np" style="font-size:12px; color:#e8c8b2;">बाँकी रकम &middot; you owe</div>
+          <div class="disp" style="font-size:34px; font-weight:600; color:#fffdf8; line-height:1;">Rs 8,400</div>
+        </div>
+        <div style="padding:6px 10px; border-radius:20px; background:#9c5230; display:flex; align-items:center; gap:6px;">
+          <div style="width:6px; height:6px; border-radius:3px; background:#f3c9a8;"></div>
+          <span style="font-size:11px; color:#f7e0ce; font-weight:600;">22 days</span>
+        </div>
+      </div>
+      <div style="font-size:12px; color:#e8c8b2; line-height:1.5;">1 unpaid bill. Pay the driver on the next delivery, or transfer and the dealer marks it received.</div>
+    </div>
+  </div>
+
+  <div style="flex:1; overflow:hidden; padding:0 18px; display:flex; flex-direction:column; gap:10px;">
+
+    <div style="font-size:12px; font-weight:600; color:#7a6a5c; letter-spacing:0.05em; text-transform:uppercase; padding:2px 2px 2px;">Unpaid</div>
+
+    <div class="bill" style="border-color:#dcb9a2;">
+      <div style="width:38px; height:38px; border-radius:10px; background:#f7e7dc; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b4532a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2.5-1.6L9 22l3-1.6L15 22l2.5-1.6L20 22V2l-2.5 1.6L15 2l-3 1.6L9 2 6.5 3.6z"></path></svg>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:3px; min-width:0;">
+        <div style="font-size:13.5px; font-weight:600;">A-2083-0104</div>
+        <div style="font-size:11.5px; color:#7a6a5c;">Bhadra 4 &middot; 9 items</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+        <span class="disp" style="font-size:17px; font-weight:600;">8,400</span>
+        <span style="font-size:11px; font-weight:600; color:#b4532a;">Due</span>
+      </div>
+    </div>
+
+    <div style="font-size:12px; font-weight:600; color:#7a6a5c; letter-spacing:0.05em; text-transform:uppercase; padding:8px 2px 2px;">Paid</div>
+
+    <div class="bill">
+      <div style="width:38px; height:38px; border-radius:10px; background:#eaf0ea; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3f6b4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:3px; min-width:0;">
+        <div style="font-size:13.5px; font-weight:600;">A-2083-0092</div>
+        <div style="font-size:11.5px; color:#7a6a5c;">Shrawan 28 &middot; cash</div>
+      </div>
+      <span class="disp" style="font-size:17px; font-weight:600; color:#7a6a5c;">5,120</span>
+    </div>
+
+    <div class="bill">
+      <div style="width:38px; height:38px; border-radius:10px; background:#eaf0ea; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3f6b4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:3px; min-width:0;">
+        <div style="font-size:13.5px; font-weight:600;">A-2083-0071</div>
+        <div style="font-size:11.5px; color:#7a6a5c;">Shrawan 19 &middot; eSewa</div>
+      </div>
+      <span class="disp" style="font-size:17px; font-weight:600; color:#7a6a5c;">3,960</span>
+    </div>
+
+    <div class="bill">
+      <div style="width:38px; height:38px; border-radius:10px; background:#eaf0ea; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3f6b4a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:3px; min-width:0;">
+        <div style="font-size:13.5px; font-weight:600;">A-2083-0058</div>
+        <div style="font-size:11.5px; color:#7a6a5c;">Shrawan 11 &middot; cash</div>
+      </div>
+      <span class="disp" style="font-size:17px; font-weight:600; color:#7a6a5c;">7,240</span>
+    </div>
+
+    <div style="flex:1;"></div>
+  </div>
+
+  <div style="padding:14px 18px 18px;">
+    <button style="width:100%; height:54px; border-radius:13px; background:#fffdf8; border:1px solid #e6dccd; font-family:inherit; font-size:14px; font-weight:600; color:#2b2019; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2b2019" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      Download all bills
+    </button>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

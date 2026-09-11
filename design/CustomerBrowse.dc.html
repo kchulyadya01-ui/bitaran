@@ -1,0 +1,216 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap">
+  <style>
+    body { margin:0; font-family:'IBM Plex Sans','Noto Sans Devanagari',system-ui,sans-serif; background:#fbf5ec; color:#2b2019; -webkit-font-smoothing:antialiased; }
+    a { color:#b4532a; } a:hover { color:#8e3f1f; }
+    .disp { font-family:'Newsreader',Georgia,'Times New Roman',serif; }
+    .np { font-family:'Noto Sans Devanagari','IBM Plex Sans',sans-serif; }
+    .tile { background:#fffdf8; border:1px solid #e6dccd; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; }
+    .art { height:88px; display:flex; align-items:center; justify-content:center; }
+    .body { padding:10px 11px 11px; display:flex; flex-direction:column; gap:6px; flex:1; }
+    .nm { font-size:12.5px; font-weight:600; line-height:1.35; }
+    .pr { display:flex; align-items:baseline; gap:4px; }
+    .step { height:42px; border-radius:10px; border:1.5px solid #e0d2be; display:flex; align-items:center; justify-content:space-between; }
+    .tap { width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  </style>
+</helmet>
+<div style="width:390px; height:844px; display:flex; flex-direction:column; background:#fbf5ec; overflow:hidden;">
+
+  <div style="padding:20px 18px 14px; display:flex; flex-direction:column; gap:14px;">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+      <div style="display:flex; flex-direction:column; gap:3px;">
+        <div class="np disp" style="font-size:22px; font-weight:500; letter-spacing:-0.01em;">नमस्ते, Shyam ji</div>
+        <div style="font-size:12.5px; color:#7a6a5c;">Himal Distributors &middot; delivers tomorrow</div>
+      </div>
+      <div style="width:42px; height:42px; border-radius:21px; background:#f1e5d3; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8e7358" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-7h6v7"></path></svg>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px; background:#fffdf8; border:1px solid #e6dccd; border-radius:12px; padding:13px 14px;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#a89684" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16" y2="16"></line></svg>
+      <span style="font-size:14px; color:#a89684;">Search ice cream, snacks&hellip;</span>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <div style="padding:9px 15px; border-radius:20px; background:#2b2019; color:#fffdf8; font-size:12.5px; font-weight:600; cursor:pointer;">All</div>
+      <div style="padding:9px 15px; border-radius:20px; background:#fffdf8; border:1px solid #e6dccd; color:#7a6a5c; font-size:12.5px; cursor:pointer;">Ice cream</div>
+      <div style="padding:9px 15px; border-radius:20px; background:#fffdf8; border:1px solid #e6dccd; color:#7a6a5c; font-size:12.5px; cursor:pointer;">Snacks</div>
+      <div style="padding:9px 15px; border-radius:20px; background:#fffdf8; border:1px solid #e6dccd; color:#7a6a5c; font-size:12.5px; cursor:pointer;">Noodles</div>
+    </div>
+  </div>
+
+  <div style="flex:1; overflow:hidden; padding:0 18px; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; align-content:start;">
+
+    <div class="tile">
+      <div class="art" style="background:#f7ecdc;">
+        <svg width="46" height="56" viewBox="0 0 46 56" fill="none"><path d="M23 54 L9 24 h28 z" fill="#c98b4b"></path><path d="M13 33 h20 M11 28 h24" stroke="#a86f35" stroke-width="1.3"></path><circle cx="16" cy="19" r="8.5" fill="#fff6e8"></circle><circle cx="30" cy="19" r="8.5" fill="#fff6e8"></circle><circle cx="23" cy="12" r="9.5" fill="#fffdf8"></circle><path d="M22 4 q7 -2 9 4" stroke="#6b4226" stroke-width="2.6" fill="none" stroke-linecap="round"></path></svg>
+      </div>
+      <div class="body">
+        <div class="nm">Cornetto Choco Vanilla</div>
+        <div class="pr"><span class="disp" style="font-size:17px; font-weight:600;">Rs 80</span><span style="font-size:11px; color:#7a6a5c;">/ pc</span></div>
+        <div style="flex:1;"></div>
+        <div class="step" style="{{a.ring}}">
+          <div class="tap" onClick="{{a.sub}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{a.ink}}" stroke-width="2.6" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+          <span style="{{a.qtyStyle}}">{{a.qty}}</span>
+          <div class="tap" onClick="{{a.add}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tile">
+      <div class="art" style="background:#efe3d5;">
+        <svg width="34" height="56" viewBox="0 0 34 56" fill="none"><rect x="14" y="38" width="6" height="17" rx="3" fill="#d9bd93"></rect><rect x="4" y="4" width="26" height="38" rx="5" fill="#5a3620"></rect><rect x="4" y="4" width="26" height="10" rx="5" fill="#7a4c2e"></rect><path d="M10 22 h14 M10 29 h14" stroke="#43281786" stroke-width="1.4"></path></svg>
+      </div>
+      <div class="body">
+        <div class="nm">Chocobar 60ml</div>
+        <div class="pr"><span class="disp" style="font-size:17px; font-weight:600;">Rs 45</span><span style="font-size:11px; color:#7a6a5c;">/ pc</span></div>
+        <div style="flex:1;"></div>
+        <div class="step" style="{{b.ring}}">
+          <div class="tap" onClick="{{b.sub}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{b.ink}}" stroke-width="2.6" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+          <span style="{{b.qtyStyle}}">{{b.qty}}</span>
+          <div class="tap" onClick="{{b.add}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tile">
+      <div class="art" style="background:#f4ece0;">
+        <svg width="52" height="48" viewBox="0 0 52 48" fill="none"><path d="M9 15 h34 l-4 29 h-26 z" fill="#f3e3cb"></path><rect x="5" y="7" width="42" height="10" rx="3" fill="#e4cba4"></rect><rect x="14" y="24" width="24" height="3" rx="1.5" fill="#c9a97c"></rect><rect x="14" y="31" width="16" height="3" rx="1.5" fill="#c9a97c"></rect></svg>
+      </div>
+      <div class="body">
+        <div class="nm">Family Pack Vanilla 1L</div>
+        <div class="pr"><span class="disp" style="font-size:17px; font-weight:600;">Rs 420</span><span style="font-size:11px; color:#7a6a5c;">/ box</span></div>
+        <div style="flex:1;"></div>
+        <div class="step" style="{{c.ring}}">
+          <div class="tap" onClick="{{c.sub}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{c.ink}}" stroke-width="2.6" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+          <span style="{{c.qtyStyle}}">{{c.qty}}</span>
+          <div class="tap" onClick="{{c.add}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tile">
+      <div class="art" style="background:#f8e8d8;">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="7" y="7" width="34" height="34" rx="4" fill="#d4762f"></rect><circle cx="24" cy="22" r="9.5" fill="#f7e4c8"></circle><path d="M18 21 q6 -5 12 0 M18 25 q6 -5 12 0" stroke="#d4762f" stroke-width="1.7" fill="none"></path><rect x="13" y="33" width="22" height="3" rx="1.5" fill="#f7e4c8"></rect></svg>
+      </div>
+      <div class="body">
+        <div class="nm">Wai Wai Chicken 75g</div>
+        <div class="pr"><span class="disp" style="font-size:17px; font-weight:600;">Rs 25</span><span style="font-size:11px; color:#7a6a5c;">/ pkt</span></div>
+        <div style="flex:1;"></div>
+        <div class="step" style="{{d.ring}}">
+          <div class="tap" onClick="{{d.sub}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{d.ink}}" stroke-width="2.6" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+          <span style="{{d.qtyStyle}}">{{d.qty}}</span>
+          <div class="tap" onClick="{{d.add}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tile">
+      <div class="art" style="background:#f6efdc;">
+        <svg width="40" height="52" viewBox="0 0 40 52" fill="none"><path d="M6 8 h28 v34 l-4 5 h-20 l-4 -5 z" fill="#e2b33c"></path><path d="M6 8 q14 6 28 0" stroke="#c99a23" stroke-width="2.2" fill="none"></path><ellipse cx="20" cy="27" rx="9" ry="6.5" fill="#fdf3dc"></ellipse></svg>
+      </div>
+      <div class="body">
+        <div class="nm">Lays Classic Salted 52g</div>
+        <div class="pr"><span class="disp" style="font-size:17px; font-weight:600;">Rs 55</span><span style="font-size:11px; color:#7a6a5c;">/ pkt</span></div>
+        <div style="flex:1;"></div>
+        <div class="step" style="{{e.ring}}">
+          <div class="tap" onClick="{{e.sub}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{e.ink}}" stroke-width="2.6" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+          <span style="{{e.qtyStyle}}">{{e.qty}}</span>
+          <div class="tap" onClick="{{e.add}}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tile" style="opacity:0.55;">
+      <div class="art" style="background:#f2eae2;">
+        <svg width="40" height="52" viewBox="0 0 40 52" fill="none"><path d="M6 8 h28 v34 l-4 5 h-20 l-4 -5 z" fill="#b9a894"></path><path d="M6 8 q14 6 28 0" stroke="#a2907c" stroke-width="2.2" fill="none"></path><ellipse cx="20" cy="27" rx="9" ry="6.5" fill="#efe7dd"></ellipse></svg>
+      </div>
+      <div class="body">
+        <div class="nm">Kurkure Masala Munch</div>
+        <div class="pr"><span class="disp" style="font-size:17px; font-weight:600;">Rs 20</span><span style="font-size:11px; color:#7a6a5c;">/ pkt</span></div>
+        <div style="flex:1;"></div>
+        <div style="height:42px; border-radius:10px; background:#f2eae2; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:#8e7358;">Back on Bhadra 28</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:14px 18px 18px;">
+    <div style="{{barStyle}}">
+      <div style="flex:1; display:flex; flex-direction:column; gap:2px;">
+        <span style="{{barMetaStyle}}">{{count}}</span>
+        <span class="disp" style="{{barTotalStyle}}">{{totalLabel}}</span>
+      </div>
+      <sc-if value="{{hasItems}}" hint-placeholder-val="{{true}}">
+        <div style="height:42px; border-radius:10px; background:{{accent}}; color:#fffdf8; display:flex; align-items:center; gap:7px; padding:0 16px; font-size:14px; font-weight:600; cursor:pointer;">
+          Review order
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fffdf8" stroke-width="2.4" stroke-linecap="round"><polyline points="9 5 16 12 9 19"></polyline></svg>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#b4532a","options":["#b4532a","#8a5a2b","#3f6b4a","#2b2019"],"section":"Theme"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { qty: { cornetto: 24, waiwai: 10, family: 0, chocobar: 0, lays: 0 } };
+  }
+  fmt(n) {
+    const i = String(n);
+    if (i.length <= 3) return i;
+    const last3 = i.slice(-3);
+    let rest = i.slice(0, -3);
+    const groups = [];
+    while (rest.length > 2) { groups.unshift(rest.slice(-2)); rest = rest.slice(0, -2); }
+    if (rest.length) groups.unshift(rest);
+    return groups.join(',') + ',' + last3;
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#b4532a';
+    const prices = { cornetto: 80, chocobar: 45, family: 420, waiwai: 25, lays: 55 };
+    const bump = (id, d) => {
+      const q = Object.assign({}, this.state.qty);
+      q[id] = Math.max(0, (q[id] || 0) + d);
+      this.setState({ qty: q });
+    };
+    const cell = (id) => {
+      const q = this.state.qty[id] || 0;
+      return {
+        qty: q,
+        add: () => bump(id, 1),
+        sub: () => bump(id, -1),
+        ink: q > 0 ? accent : '#cdbda9',
+        ring: 'border-color:' + (q > 0 ? accent : '#e0d2be') + ';',
+        qtyStyle: 'font-size:15px; font-weight:600; color:' + (q > 0 ? '#2b2019' : '#cdbda9') + ';'
+      };
+    };
+    let total = 0; let count = 0;
+    Object.keys(prices).forEach((k) => {
+      const q = this.state.qty[k] || 0;
+      total += q * prices[k];
+      if (q > 0) count += 1;
+    });
+    const has = count > 0;
+    return {
+      accent: accent,
+      a: cell('cornetto'), b: cell('chocobar'), c: cell('family'), d: cell('waiwai'), e: cell('lays'),
+      hasItems: has,
+      count: has ? (count + (count === 1 ? ' item in order' : ' items in order')) : 'Your order is empty',
+      totalLabel: has ? ('Rs ' + this.fmt(total)) : 'Tap + to add',
+      barStyle: 'height:58px; border-radius:14px; display:flex; align-items:center; padding:0 8px 0 18px; gap:12px; background:' + (has ? '#2b2019' : '#fffdf8') + '; border:1px ' + (has ? 'solid #2b2019' : 'dashed #dccfba') + ';',
+      barMetaStyle: 'font-size:11.5px; color:' + (has ? '#bfae9a' : '#a89684') + ';',
+      barTotalStyle: 'font-size:19px; font-weight:600; color:' + (has ? '#fffdf8' : '#a89684') + ';'
+    };
+  }
+}
+</script>
+</body>
+</html>

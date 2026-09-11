@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap">
+  <style>
+    body { margin:0; font-family:'IBM Plex Sans','Noto Sans Devanagari',system-ui,sans-serif; background:#fbf5ec; color:#2b2019; -webkit-font-smoothing:antialiased; }
+    a { color:#b4532a; } a:hover { color:#8e3f1f; }
+    .disp { font-family:'Newsreader',Georgia,'Times New Roman',serif; }
+    .np { font-family:'Noto Sans Devanagari','IBM Plex Sans',sans-serif; }
+  </style>
+</helmet>
+<div style="width:390px; height:844px; display:flex; flex-direction:column; background:#fbf5ec; overflow:hidden;">
+
+  <div style="padding:20px 18px 12px; display:flex; align-items:center; gap:14px;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2b2019" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+    <div class="disp" style="font-size:22px; font-weight:500;">Your order</div>
+  </div>
+
+  <div style="flex:1; overflow:hidden; padding:0 18px; display:flex; flex-direction:column; gap:12px;">
+
+    <div style="background:#fffdf8; border:1px solid #e6dccd; border-radius:14px; overflow:hidden;">
+      <sc-for list="{{lines}}" as="l" hint-placeholder-count="3">
+        <div style="{{l.rowStyle}}">
+          <div style="flex:1; display:flex; flex-direction:column; gap:3px; min-width:0;">
+            <div style="font-size:13.5px; font-weight:600;">{{l.name}}</div>
+            <div style="font-size:11.5px; color:#7a6a5c;">{{l.rate}}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="height:38px; border-radius:9px; border:1.5px solid {{accent}}; display:flex; align-items:center;">
+              <div style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer;" onClick="{{l.sub}}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2.6" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </div>
+              <span style="min-width:26px; text-align:center; font-size:14.5px; font-weight:600;">{{l.qty}}</span>
+              <div style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer;" onClick="{{l.add}}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{accent}}" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </div>
+            </div>
+            <span class="disp" style="min-width:56px; text-align:right; font-size:16px; font-weight:600;">{{l.total}}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="background:#fffdf8; border:1px solid #e6dccd; border-radius:14px; padding:15px 16px; display:flex; flex-direction:column; gap:12px;">
+      <div style="font-size:12.5px; font-weight:600; color:#7a6a5c;">When do you want it?</div>
+      <div style="display:flex; gap:9px;">
+        <sc-for list="{{days}}" as="d" hint-placeholder-count="3">
+          <div style="{{d.style}}" onClick="{{d.pick}}">
+            <span style="font-size:13px; font-weight:600;">{{d.label}}</span>
+            <span style="{{d.subStyle}}">{{d.sub}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:#fffdf8; border:1px solid #e6dccd; border-radius:14px; padding:15px 16px; display:flex; align-items:center; gap:11px; cursor:pointer;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#a89684" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span style="font-size:13.5px; color:#a89684;">Add a note for the dealer</span>
+    </div>
+
+    <div style="flex:1;"></div>
+  </div>
+
+  <div style="padding:14px 18px 18px; display:flex; flex-direction:column; gap:13px;">
+    <div style="display:flex; flex-direction:column; gap:7px;">
+      <div style="display:flex; justify-content:space-between; font-size:13px; color:#7a6a5c;">
+        <span>Items</span><span style="color:#2b2019;">{{subtotal}}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:13px; color:#7a6a5c;">
+        <span>VAT 13%</span><span style="color:#2b2019;">{{vat}}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:baseline; padding-top:9px; border-top:1px solid #e6dccd;">
+        <span style="font-size:13.5px; font-weight:600;">Total</span>
+        <span class="disp" style="font-size:26px; font-weight:600;">{{total}}</span>
+      </div>
+    </div>
+
+    <button style="height:58px; border-radius:14px; background:{{accent}}; color:#fffdf8; border:none; font-family:inherit; font-size:15.5px; font-weight:600; cursor:pointer;">
+      Place order &middot; अर्डर पठाउनुहोस्
+    </button>
+    <div style="display:flex; align-items:flex-start; gap:8px; justify-content:center;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8e7358" stroke-width="2" stroke-linecap="round" style="flex-shrink:0; margin-top:1px;"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="16"></line><line x1="12" y1="8" x2="12" y2="8"></line></svg>
+      <span style="font-size:11.5px; color:#8e7358; line-height:1.45; text-align:center;">No signal? The order waits on your phone and sends itself.</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#b4532a","options":["#b4532a","#8a5a2b","#3f6b4a","#2b2019"],"section":"Theme"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { qty: { cornetto: 24, waiwai: 10, lays: 6 }, day: 'tom' };
+  }
+  fmt(n) {
+    const s = Math.round(n * 100) / 100;
+    const parts = s.toFixed(2).split('.');
+    let i = parts[0];
+    let out = i;
+    if (i.length > 3) {
+      const last3 = i.slice(-3);
+      let rest = i.slice(0, -3);
+      const groups = [];
+      while (rest.length > 2) { groups.unshift(rest.slice(-2)); rest = rest.slice(0, -2); }
+      if (rest.length) groups.unshift(rest);
+      out = groups.join(',') + ',' + last3;
+    }
+    return parts[1] === '00' ? out : out + '.' + parts[1];
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#b4532a';
+    const items = [
+      { id:'cornetto', name:'Cornetto Choco Vanilla', rate:80, unit:'pc' },
+      { id:'waiwai', name:'Wai Wai Chicken 75g', rate:25, unit:'pkt' },
+      { id:'lays', name:'Lays Classic Salted 52g', rate:55, unit:'pkt' }
+    ];
+    const bump = (id, d) => {
+      const q = Object.assign({}, this.state.qty);
+      q[id] = Math.max(0, (q[id] || 0) + d);
+      this.setState({ qty: q });
+    };
+    let subtotal = 0;
+    const lines = items.map((it, idx) => {
+      const q = this.state.qty[it.id] || 0;
+      subtotal += q * it.rate;
+      return {
+        name: it.name,
+        rate: 'Rs ' + it.rate + ' / ' + it.unit,
+        qty: q,
+        total: this.fmt(q * it.rate),
+        add: () => bump(it.id, 1),
+        sub: () => bump(it.id, -1),
+        rowStyle: 'padding:13px 15px; display:flex; align-items:center; gap:10px;' + (idx > 0 ? ' border-top:1px solid #f0e7d9;' : '')
+      };
+    });
+    const days = [
+      { id:'tom', label:'Tomorrow', sub:'Bhadra 27' },
+      { id:'d2', label:'Bhadra 28', sub:'Sunday' },
+      { id:'pick', label:'Pick day', sub:'calendar' }
+    ].map((d) => {
+      const on = this.state.day === d.id;
+      return {
+        label: d.label, sub: d.sub,
+        pick: () => this.setState({ day: d.id }),
+        style: 'flex:1; min-height:56px; border-radius:11px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; border:1.5px solid ' + (on ? accent : '#e6dccd') + '; background:' + (on ? '#fdf2ea' : '#fffdf8') + ';',
+        subStyle: 'font-size:11px; color:' + (on ? accent : '#a89684') + ';'
+      };
+    });
+    const vat = subtotal * 0.13;
+    return {
+      accent: accent, lines: lines, days: days,
+      subtotal: 'Rs ' + this.fmt(subtotal),
+      vat: 'Rs ' + this.fmt(vat),
+      total: 'Rs ' + this.fmt(subtotal + vat)
+    };
+  }
+}
+</script>
+</body>
+</html>
