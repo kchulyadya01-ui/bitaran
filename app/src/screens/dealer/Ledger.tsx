@@ -4,6 +4,8 @@ import { db } from '../../lib/db';
 import { allBalances, money, recordPayment } from '../../lib/domain';
 import { useTenantId, useToast } from '../../lib/hooks';
 import { Cash } from '../../ui/icons';
+import MoreMenu from '../../ui/MoreMenu';
+import HamburgerButton from '../../ui/HamburgerButton';
 
 const DAY = 86_400_000;
 
@@ -13,6 +15,7 @@ export default function Ledger() {
   const [collecting, setCollecting] = useState<{ id: string; shop: string; due: number } | null>(null);
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState<'cash' | 'digital'>('cash');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const data = useLiveQuery(async () => {
     if (!tenantId) return null;
@@ -46,7 +49,10 @@ export default function Ledger() {
   return (
     <>
       <header className="topbar" style={{ background: 'var(--ink)', borderBottom: 'none', flexDirection: 'column', alignItems: 'stretch', gap: 14, color: '#fff' }}>
-        <div style={{ fontSize: 16, fontWeight: 600 }}>Outstanding · बाँकी</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <HamburgerButton dark onClick={() => setMenuOpen(true)} />
+          <span style={{ fontSize: 16, fontWeight: 600 }}>Outstanding · बाँकी</span>
+        </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <span className="num" style={{ fontSize: 38, fontWeight: 600, lineHeight: 1 }}>{money(data?.total ?? 0)}</span>
@@ -68,6 +74,8 @@ export default function Ledger() {
           ))}
         </div>
       </header>
+
+      <MoreMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <div className="scroll">
         <div style={{ padding: '12px 16px 8px' }}><span className="lbl">Oldest first</span></div>

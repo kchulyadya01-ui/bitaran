@@ -5,6 +5,8 @@ import { db } from '../../lib/db';
 import { allStock, dueLabel, markOrderStatus, money, resolveStatus, setPicked, stamp } from '../../lib/domain';
 import { useTenantId, useToast } from '../../lib/hooks';
 import { Check, Van, Alert, Clock, Receipt, Note } from '../../ui/icons';
+import MoreMenu from '../../ui/MoreMenu';
+import HamburgerButton from '../../ui/HamburgerButton';
 
 type View = 'item' | 'order';
 
@@ -37,6 +39,7 @@ export default function Pack() {
   const tenantId = useTenantId();
   const [toast, setToast] = useToast();
   const [view, setView] = useState<View>('order');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const data = useLiveQuery(async () => {
     if (!tenantId) return null;
@@ -129,6 +132,7 @@ export default function Pack() {
     <>
       <header className="topbar" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <HamburgerButton onClick={() => setMenuOpen(true)} />
           <Van size={20} />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <div className="title">Pack the van</div>
@@ -149,6 +153,8 @@ export default function Pack() {
           ))}
         </div>
       </header>
+
+      <MoreMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <div className="scroll">
         {view === 'item' ? (

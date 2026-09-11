@@ -28,7 +28,7 @@ export default function MoreMenu({ open, onClose }: { open: boolean; onClose: ()
   return (
     <>
       <div className="sheet-back" onClick={onClose}>
-        <div className="sheet" style={{ maxHeight: '85vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
+        <div className="sheet" onClick={(e) => e.stopPropagation()}>
           <div style={{ fontSize: 16, fontWeight: 600 }}>More</div>
 
           <div className="card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>

@@ -1,9 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db';
 import { dueLabel, markOrderStatus, money, resolveStatus } from '../../lib/domain';
 import { useTenantId } from '../../lib/hooks';
 import { Check } from '../../ui/icons';
+import MoreMenu from '../../ui/MoreMenu';
+import HamburgerButton from '../../ui/HamburgerButton';
 
 const DEPOT = { lat: 27.6620, lng: 85.4295 }; // Suryabinayak
 
@@ -38,6 +40,7 @@ function orderStops<T extends { lat: number; lng: number }>(stops: T[]): T[] {
 
 export default function RouteScreen() {
   const tenantId = useTenantId();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const raw = useLiveQuery(async () => {
     if (!tenantId) return null;
@@ -106,6 +109,9 @@ export default function RouteScreen() {
   return (
     <>
       <div style={{ position: 'relative', background: '#e7e5dc', height: H, flexShrink: 0 }}>
+        <div style={{ position: 'absolute', top: 'calc(10px + env(safe-area-inset-top))', left: 12, zIndex: 2 }}>
+          <HamburgerButton onClick={() => setMenuOpen(true)} />
+        </div>
         <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }}>
           <rect width={W} height={H} fill="#e7e5dc" />
           <g stroke="#f7f6f2" strokeWidth="11">
@@ -132,11 +138,13 @@ export default function RouteScreen() {
             );
           })}
         </svg>
-        <div style={{ position: 'absolute', top: 14, left: 14, display: 'flex', alignItems: 'center', gap: 6, background: '#fff', border: '1px solid #c9c9c2', padding: '7px 10px' }}>
+        <div style={{ position: 'absolute', top: 'calc(10px + env(safe-area-inset-top))', right: 12, display: 'flex', alignItems: 'center', gap: 6, background: '#fff', border: '1px solid #c9c9c2', padding: '7px 10px', borderRadius: 999 }}>
           <Check size={13} color="var(--ok)" />
           <span style={{ fontSize: 11, fontWeight: 600 }}>Works with no signal</span>
         </div>
       </div>
+
+      <MoreMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <div style={{ padding: '14px 16px 10px', background: 'var(--card)', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>

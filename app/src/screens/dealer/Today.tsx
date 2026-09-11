@@ -5,7 +5,8 @@ import { db, type OrderStatus } from '../../lib/db';
 import { bs, money, resolveStatus, allBalances, dueLabel, setMeta, stamp } from '../../lib/domain';
 import { useTenant, useTenantId, usePending, useOnline, useMeta } from '../../lib/hooks';
 import MoreMenu from '../../ui/MoreMenu';
-import { Sync, NoWifi, Plus, Clock, Van, Check, Chevron, Note, Menu } from '../../ui/icons';
+import HamburgerButton from '../../ui/HamburgerButton';
+import { Sync, NoWifi, Plus, Clock, Van, Check, Chevron, Note } from '../../ui/icons';
 
 type Tab = 'new' | 'billed' | 'out' | 'done';
 
@@ -99,16 +100,7 @@ export default function Today() {
       <header className="topbar" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-            <button
-              onClick={() => setMenuOpen(true)}
-              aria-label="More"
-              style={{
-                width: 34, height: 34, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 999,
-              }}
-            >
-              <Menu size={17} color="var(--ink)" />
-            </button>
+            <HamburgerButton onClick={() => setMenuOpen(true)} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
               <div className="title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {tenant?.name.replace(' Pvt. Ltd.', '') ?? 'Loading'}

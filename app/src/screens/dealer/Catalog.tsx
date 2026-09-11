@@ -4,6 +4,8 @@ import { db } from '../../lib/db';
 import { addProduct, addSegment, allStock, money, renameSegment, setStock, updateProductPrice } from '../../lib/domain';
 import { useTenantId, useToast } from '../../lib/hooks';
 import { Search, Plus, Grid } from '../../ui/icons';
+import MoreMenu from '../../ui/MoreMenu';
+import HamburgerButton from '../../ui/HamburgerButton';
 
 type Sheet =
   | { kind: 'none' }
@@ -17,6 +19,7 @@ export default function Catalog() {
   const [filter, setFilter] = useState<string>('all');
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
   const [sheet, setSheet] = useState<Sheet>({ kind: 'none' });
   const [toast, setToast] = useToast();
 
@@ -106,7 +109,10 @@ export default function Catalog() {
   return (
     <>
       <header className="topbar" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 14 }}>
-        <div className="title">Stock &amp; prices</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <HamburgerButton onClick={() => setMenuOpen(true)} />
+          <div className="title">Stock &amp; prices</div>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'var(--paper)', border: '1px solid var(--line)', padding: '12px 13px' }}>
           <Search size={16} color="var(--muted)" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${data?.products.length ?? 0} items`} style={{ border: 'none', background: 'transparent', padding: 0 }} />
@@ -124,6 +130,8 @@ export default function Catalog() {
           </button>
         </div>
       </header>
+
+      <MoreMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <div className="scroll">
         {groups.map(({ segment, items }) => (
