@@ -4,16 +4,28 @@ Offline-first order, billing and delivery app for food distributors in Nepal.
 Multi-tenant: any distribution business signs up and gets its own catalog, customers, stock, PAN and invoice series.
 Mobile-first PWA — one build serves phone and web.
 
+## Live
+
+- **App:** https://kchulyadya01-ui.github.io/bitaran/ — open on a phone, then Add to Home Screen / Install
+- **Designs:** https://claude.ai/code/artifact/613f78ad-30e7-4af4-bad0-d114ed634d36
+
 ## Status
 
-Design phase. Architecture settled, 15 screens drafted. No application code yet.
+Working offline-first PWA against local IndexedDB. No server yet — every write queues in an
+outbox that does not drain. See "What is left" below.
+
+```bash
+cd app && npm install && npm run dev   # http://localhost:5173
+./deploy.sh                            # build + publish to GitHub Pages
+```
 
 ## Docs
 
 - [docs/architecture.md](docs/architecture.md) — platform, invoice numbering, sync protocol, conflict model, data model, stack
 - [docs/compliance-nepal.md](docs/compliance-nepal.md) — questions for the accountant, with sourced findings
 - [docs/brief.md](docs/brief.md) — original project brief
-- [design/](design/) — screen designs (`.dc.html` artboards + `canvas.json`); published canvas: https://claude.ai/code/artifact/613f78ad-30e7-4af4-bad0-d114ed634d36
+- [design/](design/) — screen designs (`.dc.html` artboards + `canvas.json`)
+- [app/](app/) — the PWA
 
 ## Key constraints driving the design
 
