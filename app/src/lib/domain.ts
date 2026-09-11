@@ -3,7 +3,7 @@ import {
   db, uid, enqueue, audit, getMeta, setMeta,
   STATUS_RANK,
   type Invoice, type InvoiceLine, type OrderEvent, type OrderStatus,
-  type PaymentType, type Product,
+  type PaymentType, type Pick, type Product,
 } from './db';
 
 const NepaliDate = NepaliDateRaw as unknown as typeof NepaliDateRaw;
@@ -290,6 +290,43 @@ export async function markOrderStatus(orderId: string, status: OrderStatus, note
   await db.orderEvents.add(row);
   await enqueue('orderEvent', 'insert', row);
   await audit('order_status', 'order', orderId, row);
+}
+
+/**
+ * Tick lines off the shelf while the van is loaded, or untick them.
+ *
+ * Picking is working state, not a financial record: unticking deletes the row
+ * instead of leaving a tombstone, because nothing downstream reads a pick that
+ * is no longer true. The row id is orderId:productId, so the same line ticked
+ * on two phones converges on one row rather than two.
+ */
+export async function setPicked(
+  lines: { orderId: string; productId: string; qty: number }[],
+  picked: boolean,
+) {
+  if (!lines.length) return;
+  const tenantId = (await getMeta<string>('activeTenantId'))!;
+  const userId = (await getMeta<string>('activeUserId'))!;
+  const now = Date.now();
+  await db.transaction('rw', [db.picks, db.outbox, db.auditLog, db.meta], async () => {
+    for (const l of lines) {
+      const id = `${l.orderId}:${l.productId}`;
+      if (picked) {
+        const row: Pick = {
+          id, tenantId, orderId: l.orderId, productId: l.productId,
+          qty: l.qty, pickedAt: now, pickedBy: userId,
+        };
+        await db.picks.put(row);
+        await enqueue('pick', 'insert', row);
+      } else {
+        await db.picks.delete(id);
+        await enqueue('pick', 'update', { id, picked: false, at: now, by: userId });
+      }
+    }
+    await audit(picked ? 'pick_lines' : 'unpick_lines', 'order', lines[0].orderId, {
+      count: lines.length, productIds: lines.map((l) => l.productId),
+    });
+  });
 }
 
 export async function receiveIncoming(incomingId: string) {

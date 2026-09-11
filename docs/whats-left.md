@@ -11,8 +11,10 @@ Everything below runs against IndexedDB on the device, with no network.
 
 **Dealer**
 - Today's orders, filtered by state, with live counts, the day's figures, and each order's delivery deadline ("deliver within 1 h · by 5 pm", red once late)
+- Sort the order list by delivery deadline, order time (newest or oldest), amount or shop name; the choice is remembered
 - Billing: pick a shop, quantity steppers, VAT computed live, cash/credit, existing-debt warning, stock warnings
 - Tax invoice: seller name and PAN, sequential number in the device's own series, Bikram Sambat date, buyer name and PAN, line items, taxable amount, 13% VAT, total, amount in words, ORIGINAL / COPY OF ORIGINAL stamp
+- Packing: one screen with two views of the same lines — **by item** (every order's quantity for a product added up, so the cold store is visited once per item) and **by shop** (tick each line as it goes in the crate). Ticks are stored, so they survive a reload and a dropped phone. An order needs its bill before it can be loaded, then one tap puts the packed orders on the van and onto the route
 - Delivery route: stops ordered by nearest-neighbour from the depot using real customer coordinates, tick to mark delivered
 - Stock and prices grouped into **segments** the dealer defines — usually the supplying company (Ben Nevis, Nova, Century), sometimes a type. Add a segment, rename one, add an item with its price, unit, opening stock and low-stock threshold. Tap a price to change it (old value kept in history)
 - Add a customer mid-bill: shop name, buyer PAN, owner, phone, area, and a GPS pin taken at the shop

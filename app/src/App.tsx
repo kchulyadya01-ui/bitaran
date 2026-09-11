@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, NavLink, useLocation, Navigate } from 'react-router-dom';
 import { seedIfEmpty } from './lib/seed';
 import { useAppRole } from './lib/hooks';
-import { Box, Receipt, Pin, Grid, Bars, Shop, Clock, Person } from './ui/icons';
+import { Box, Receipt, Pin, Grid, Bars, Shop, Clock, Person, Van } from './ui/icons';
 
 import Welcome from './screens/Welcome';
 
 import Today from './screens/dealer/Today';
 import Billing from './screens/dealer/Billing';
 import InvoiceView from './screens/dealer/InvoiceView';
+import Pack from './screens/dealer/Pack';
 import RouteScreen from './screens/dealer/RouteScreen';
 import Catalog from './screens/dealer/Catalog';
 import Incoming from './screens/dealer/Incoming';
@@ -28,6 +29,7 @@ import Team from './screens/setup/Team';
 
 const SUPPLIER_NAV = [
   { to: '/', label: 'Orders', Icon: Box, end: true },
+  { to: '/pack', label: 'Pack', Icon: Van },
   { to: '/dues', label: 'Dues', Icon: Bars },
   { to: '/route', label: 'Route', Icon: Pin },
   { to: '/stock', label: 'Stock', Icon: Grid },
@@ -105,6 +107,7 @@ function Shell() {
           <Route path="/" element={<Today />} />
           <Route path="/bill/:orderId?" element={<Billing />} />
           <Route path="/invoice/:id" element={<InvoiceView />} />
+          <Route path="/pack" element={<Pack />} />
           <Route path="/route" element={<RouteScreen />} />
           <Route path="/stock" element={<Catalog />} />
           <Route path="/incoming" element={<Incoming />} />

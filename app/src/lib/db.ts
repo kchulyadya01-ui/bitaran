@@ -180,6 +180,21 @@ export interface OrderLine {
   qty: number;
 }
 
+/**
+ * One line of one order, ticked off the shelf while the van is being loaded.
+ * The id is orderId:productId, so two devices ticking the same line converge
+ * on one row instead of two.
+ */
+export interface Pick {
+  id: string;
+  tenantId: string;
+  orderId: string;
+  productId: string;
+  qty: number;
+  pickedAt: number;
+  pickedBy: string;
+}
+
 export interface Incoming {
   id: string;
   tenantId: string;
@@ -244,6 +259,7 @@ class AppDb extends Dexie {
   customers!: Table<Customer, string>;
   orders!: Table<Order, string>;
   orderLines!: Table<OrderLine, string>;
+  picks!: Table<Pick, string>;
   incoming!: Table<Incoming, string>;
   incomingLines!: Table<IncomingLine, string>;
   fieldHistory!: Table<FieldHistory, string>;
@@ -277,6 +293,10 @@ class AppDb extends Dexie {
     this.version(2).stores({
       segments: 'id, tenantId, sortOrder',
       products: 'id, tenantId, segmentId',
+    });
+    // v3: picking list — what has been pulled off the shelf for each order.
+    this.version(3).stores({
+      picks: 'id, tenantId, orderId, productId',
     });
   }
 }
