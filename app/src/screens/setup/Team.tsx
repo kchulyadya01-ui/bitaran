@@ -14,8 +14,9 @@ export default function Team() {
     return out.length;
   }, [], 0);
 
+  // Billing and delivering are separate jobs; in a small firm one person does both.
   const billers = users.filter((u) => u.prefix);
-  const riders = users.filter((u) => !u.prefix);
+  const drivers = users.filter((u) => u.delivers);
   const nextLetter = String.fromCharCode(65 + billers.length);
   const fy = fiscalYearOf();
 
@@ -49,15 +50,18 @@ export default function Team() {
                 </div>
               </div>
             ))}
-            <div style={{ background: 'var(--paper)', padding: '8px 16px' }}><span className="lbl">Delivery only</span></div>
-            {riders.map((u) => (
+            <div style={{ background: 'var(--paper)', padding: '8px 16px' }}><span className="lbl">Delivers</span></div>
+            {drivers.map((u) => (
               <div key={u.id} className="row">
-                <div style={{ width: 38, height: 38, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, background: '#e4e2da' }}>
+                <div style={{ width: 38, height: 38, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, background: u.prefix ? 'var(--ink)' : '#e4e2da', color: u.prefix ? '#fff' : 'var(--ink)' }}>
                   {u.name.slice(0, 1)}
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
                   <span style={{ fontSize: 14.5, fontWeight: 600 }}>{u.name}</span>
-                  <span className="num" style={{ fontSize: 11.5, color: 'var(--muted)' }}>Rider · route + delivery only</span>
+                  <span className="num" style={{ fontSize: 11.5, color: 'var(--muted)' }}>
+                    <span style={{ textTransform: 'capitalize' }}>{u.role}</span>
+                    {u.prefix ? ` · also bills as ${u.prefix}` : ' · route and delivery only'}
+                  </span>
                 </div>
                 <Chevron size={17} color="var(--faint)" />
               </div>

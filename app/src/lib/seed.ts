@@ -7,7 +7,7 @@ const DAY = 86_400_000;
 const HOUR = 3_600_000;
 
 /** Bump when the seed shape changes, so old demo data is replaced rather than mixed. */
-const SEED_VERSION = 4;
+const SEED_VERSION = 5;
 
 const SEGMENTS: Omit<Segment, 'tenantId' | 'updatedAt' | 'updatedByDevice'>[] = [
   { id: 'seg-bennevis', name: 'Ben Nevis', sortOrder: 1 },
@@ -123,10 +123,9 @@ async function doSeed() {
   });
 
   await db.users.bulkAdd([
-    { id: 'u-ramesh', tenantId: TENANT, name: 'Ramesh Shrestha', phone: '9851000042', role: 'owner', prefix: 'A' },
-    { id: 'u-sita', tenantId: TENANT, name: 'Sita Karmacharya', phone: '9841100007', role: 'partner', prefix: 'B' },
-    { id: 'u-kiran', tenantId: TENANT, name: 'Kiran Suwal', phone: '9808100011', role: 'staff', prefix: 'C' },
-    { id: 'u-bibek', tenantId: TENANT, name: 'Bibek Duwal', phone: '9818100022', role: 'rider' },
+    { id: 'u-ramesh', tenantId: TENANT, name: 'Krishna Gopal Chulyadya', phone: '9851000042', role: 'owner', prefix: 'A', delivers: true },
+    { id: 'u-sita', tenantId: TENANT, name: 'Gyanendra Manandhar', phone: '9841100007', role: 'owner', prefix: 'B', delivers: true },
+    { id: 'u-kiran', tenantId: TENANT, name: 'Saraswoti Joshi', phone: '9808100011', role: 'staff', prefix: 'C' },
   ]);
 
   await db.segments.bulkAdd(SEGMENTS.map((s) => ({ ...s, ...stamp })));

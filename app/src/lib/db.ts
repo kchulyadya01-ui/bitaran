@@ -114,7 +114,10 @@ export interface AppUser {
   name: string;
   phone: string;
   role: 'owner' | 'partner' | 'staff' | 'rider';
-  prefix?: string; // billing series letter; riders have none
+  /** Billing series letter. Absent means this person cannot issue bills. */
+  prefix?: string;
+  /** Runs the van. Independent of billing — in a small firm the owners do both. */
+  delivers?: boolean;
 }
 
 export interface Product {
