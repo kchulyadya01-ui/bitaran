@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, STATUS_RANK, type OrderStatus } from '../../lib/db';
 import { bs, money, resolveStatus, stamp, vatOf } from '../../lib/domain';
 import { useShopRows } from '../../lib/hooks';
-import { Van, Check, Whats, Chevron } from '../../ui/icons';
+import { Van, Check, Whats, Chevron, Note } from '../../ui/icons';
 
 const STEPS: { id: OrderStatus; label: string; blank: string }[] = [
   { id: 'placed', label: 'Order placed', blank: '' },
@@ -96,6 +96,16 @@ export default function Track() {
               </span>
             </div>
           </div>
+
+          {order.note && (
+            <div className="card" style={{ padding: '14px 16px', display: 'flex', gap: 11, alignItems: 'flex-start' }}>
+              <Note size={16} color="var(--c-accent)" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <span style={{ fontSize: 11.5, color: 'var(--c-muted)' }}>Your note to the dealer</span>
+                <span style={{ fontSize: 13.5, lineHeight: 1.45 }}>&ldquo;{order.note}&rdquo;</span>
+              </div>
+            </div>
+          )}
 
           <div className="card" style={{ padding: 18, display: 'flex', flexDirection: 'column' }}>
             {STEPS.map((s, i) => {

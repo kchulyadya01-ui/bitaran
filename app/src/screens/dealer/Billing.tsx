@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Customer, type Order, type Product } from '../../lib/db';
-import { addCustomer, allStock, currentPosition, issueInvoice, money, peekNextInvoiceNumber, stamp, vatOf } from '../../lib/domain';
+import { addCustomer, allStock, currentPosition, dueLabel, issueInvoice, money, peekNextInvoiceNumber, stamp, vatOf } from '../../lib/domain';
 import { useActiveUser, useOnline, useTenantId, useToast } from '../../lib/hooks';
-import { Back, Plus, Minus, Receipt, Alert, NoWifi, Sync, Search, Pin, Check, Clock } from '../../ui/icons';
+import { Back, Plus, Minus, Receipt, Alert, NoWifi, Sync, Search, Pin, Check, Clock, Van, Note } from '../../ui/icons';
 
 export default function Billing() {
   const { orderId } = useParams();
@@ -151,15 +151,40 @@ export default function Billing() {
       </header>
 
       <div className="scroll">
-        {fromOrder && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '11px 16px', background: 'var(--paper)', borderBottom: '1px solid var(--line)' }}>
-            <Clock size={14} color="var(--muted)" />
-            <span className="num" style={{ fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.4 }}>
-              From the shop's order · placed {stamp(fromOrder.placedAt)}
-              {fromOrder.deliverWindow ? ` · ${fromOrder.deliverWindow.toLowerCase()}` : ''}
-            </span>
-          </div>
-        )}
+        {fromOrder && (() => {
+          const due = fromOrder.deliverWindow ?? (fromOrder.deliverBy ? dueLabel(fromOrder.deliverBy).text : null);
+          return (
+            <div style={{ padding: '12px 16px', background: 'var(--paper)', borderBottom: '1px solid var(--line)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ background: 'var(--card)', border: '1px solid var(--line)', padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Clock size={15} color="var(--muted)" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span className="lbl">Order placed</span>
+                  <span className="num" style={{ fontSize: 12.5, fontWeight: 600 }}>{stamp(fromOrder.placedAt)}</span>
+                </div>
+              </div>
+
+              {due && (
+                <div style={{ background: 'var(--card)', border: '1px solid var(--line)', padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Van size={15} color="var(--warn)" />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <span className="lbl">To be delivered</span>
+                    <span className="num" style={{ fontSize: 12.5, fontWeight: 600 }}>{due}</span>
+                  </div>
+                </div>
+              )}
+
+              {fromOrder.note && (
+                <div style={{ background: 'var(--card)', border: '1px solid var(--line)', padding: '10px 12px', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <Note size={15} color="var(--ok)" />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <span className="lbl">Note from shop</span>
+                    <span style={{ fontSize: 13, lineHeight: 1.45 }}>&ldquo;{fromOrder.note}&rdquo;</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
         <button
           onClick={() => setPicker('customer')}
           style={{ width: '100%', padding: '14px 16px', background: 'var(--card)', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}

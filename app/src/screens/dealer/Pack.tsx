@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db';
 import { allStock, dueLabel, markOrderStatus, money, resolveStatus, setPicked, stamp } from '../../lib/domain';
 import { useTenantId, useToast } from '../../lib/hooks';
-import { Check, Van, Alert, Clock, Receipt } from '../../ui/icons';
+import { Check, Van, Alert, Clock, Receipt, Note } from '../../ui/icons';
 
 type View = 'item' | 'order';
 
@@ -65,6 +65,7 @@ export default function Pack() {
           area: byCustomer[o.customerId]?.address ?? '',
           placedAt: o.placedAt,
           deliverBy: o.deliverBy,
+          note: o.note,
           status: resolveStatus(events),
           invoice,
           lines: lines.map((l) => ({
@@ -218,6 +219,12 @@ export default function Pack() {
                       <Clock size={12} color="var(--muted)" />
                       <span className="num" style={{ fontSize: 11, color: 'var(--muted)' }}>ordered {stamp(o.placedAt)}</span>
                     </div>
+                    {o.note && (
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                        <Note size={12} color="var(--warn)" />
+                        <span style={{ fontSize: 11.5, lineHeight: 1.45 }}>&ldquo;{o.note}&rdquo;</span>
+                      </div>
+                    )}
                     {o.deliverBy && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Van size={12} color={dueColor} />

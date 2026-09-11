@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type OrderStatus } from '../../lib/db';
 import { bs, money, resolveStatus, allBalances, dueLabel, setMeta, stamp } from '../../lib/domain';
 import { useTenant, useTenantId, usePending, useOnline, useMeta } from '../../lib/hooks';
-import { Sync, NoWifi, Plus, Clock, Van, Check, Chevron } from '../../ui/icons';
+import { Sync, NoWifi, Plus, Clock, Van, Check, Chevron, Note } from '../../ui/icons';
 
 type Tab = 'new' | 'billed' | 'out' | 'done';
 
@@ -65,6 +65,7 @@ export default function Today() {
           shop: byCustomer[o.customerId]?.shopName ?? 'Unknown shop',
           deliverBy: o.deliverBy,
           deliverWindow: o.deliverWindow,
+          note: o.note,
           customerId: o.customerId,
           itemCount: lines.length,
           placedAt: o.placedAt,
@@ -191,6 +192,14 @@ export default function Today() {
                         ordered {stamp(r.placedAt)}
                       </span>
                     </div>
+                    {r.note && (
+                      <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+                        <Note size={13} color="var(--warn)" />
+                        <span style={{ fontSize: 11.5, color: 'var(--ink)', lineHeight: 1.45 }}>
+                          &ldquo;{r.note}&rdquo;
+                        </span>
+                      </div>
+                    )}
                     {r.deliverBy && r.status !== 'delivered' && (() => {
                       const due = dueLabel(r.deliverBy);
                       const c = due.tone === 'bad' ? 'var(--bad)' : due.tone === 'warn' ? 'var(--warn)' : 'var(--muted)';

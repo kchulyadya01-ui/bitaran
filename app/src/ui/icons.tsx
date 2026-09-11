@@ -61,6 +61,9 @@ export const Alert = ({ size, color, w }: P) => (
 export const Info = ({ size, color, w }: P) => (
   <svg {...base(size, color, w ?? 2.2)}><circle cx="12" cy="12" r="9" /><line x1="12" y1="11" x2="12" y2="16" /><line x1="12" y1="8" x2="12" y2="8" /></svg>
 );
+export const Note = ({ size, color, w }: P) => (
+  <svg {...base(size, color, w)}><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 20.5l1.5-4.2A8.4 8.4 0 0 1 3.6 12a8.4 8.4 0 0 1 8.4-8.5h.5a8.4 8.4 0 0 1 8.5 8z" /></svg>
+);
 export const Chevron = ({ size, color, w }: P) => (
   <svg {...base(size, color, w ?? 2.4)}><polyline points="9 5 16 12 9 19" /></svg>
 );
