@@ -124,8 +124,22 @@ export interface Product {
   nameNp?: string;
   unit: string;
   price: number;
-  category: string;
+  segmentId: string;
   lowStockAt: number;
+  updatedAt: number;
+  updatedByDevice: string;
+}
+
+/**
+ * A segment is how the dealer groups their catalog - usually the supplying
+ * company or brand (Ben Nevis, Nova, Century), sometimes a product type.
+ * Dealers create their own, so nothing here is hard-coded.
+ */
+export interface Segment {
+  id: string;
+  tenantId: string;
+  name: string;
+  sortOrder: number;
   updatedAt: number;
   updatedByDevice: string;
 }
@@ -149,7 +163,10 @@ export interface Order {
   tenantId: string;
   customerId: string;
   placedAt: number;
-  wantedOn?: string;
+  /** Promised deadline: deliver on or before this moment. */
+  deliverBy?: number;
+  /** Human label for the promised window, e.g. "Tomorrow, by 2 pm". */
+  deliverWindow?: string;
   note?: string;
 }
 
@@ -220,6 +237,7 @@ class AppDb extends Dexie {
   tenants!: Table<Tenant, string>;
   users!: Table<AppUser, string>;
   products!: Table<Product, string>;
+  segments!: Table<Segment, string>;
   customers!: Table<Customer, string>;
   orders!: Table<Order, string>;
   orderLines!: Table<OrderLine, string>;
@@ -251,6 +269,11 @@ class AppDb extends Dexie {
       outbox: 'id, createdAt',
       meta: 'key',
       counters: 'key',
+    });
+    // v2: catalog grouped into dealer-defined segments; orders carry a delivery deadline.
+    this.version(2).stores({
+      segments: 'id, tenantId, sortOrder',
+      products: 'id, tenantId, segmentId',
     });
   }
 }

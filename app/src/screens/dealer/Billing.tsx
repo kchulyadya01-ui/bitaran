@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Customer, type Product } from '../../lib/db';
-import { allStock, issueInvoice, money, peekNextInvoiceNumber, vatOf } from '../../lib/domain';
+import { addCustomer, allStock, currentPosition, issueInvoice, money, peekNextInvoiceNumber, vatOf } from '../../lib/domain';
 import { useActiveUser, useOnline, useTenantId, useToast } from '../../lib/hooks';
-import { Back, Plus, Minus, Receipt, Alert, NoWifi, Sync, Search } from '../../ui/icons';
+import { Back, Plus, Minus, Receipt, Alert, NoWifi, Sync, Search, Pin, Check } from '../../ui/icons';
 
 export default function Billing() {
   const { orderId } = useParams();
@@ -17,7 +17,10 @@ export default function Billing() {
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [qty, setQty] = useState<Record<string, number>>({});
   const [mode, setMode] = useState<'cash' | 'credit'>('cash');
-  const [picker, setPicker] = useState<'none' | 'customer' | 'product'>('none');
+  const [picker, setPicker] = useState<'none' | 'customer' | 'product' | 'newCustomer'>('none');
+  const [newShop, setNewShop] = useState({ shopName: '', contactName: '', phone: '', pan: '', address: '' });
+  const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
+  const [pinning, setPinning] = useState(false);
   const [search, setSearch] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -99,6 +102,23 @@ export default function Billing() {
       setBusy(false);
     }
   }
+
+  async function saveNewShop() {
+    if (!tenantId) return;
+    const c = await addCustomer({
+      tenantId,
+      ...newShop,
+      lat: pin?.lat,
+      lng: pin?.lng,
+    });
+    setCustomerId(c.id);
+    setNewShop({ shopName: '', contactName: '', phone: '', pan: '', address: '' });
+    setPin(null);
+    setPicker('none');
+    setToast(`${c.shopName} added`);
+  }
+
+  const newShopReady = newShop.shopName.trim().length > 1 && newShop.pan.trim().length >= 9;
 
   const filtered = (base?.products ?? []).filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()),
@@ -233,12 +253,26 @@ export default function Billing() {
         </div>
       </div>
 
-      {picker !== 'none' && (
+      {(picker === 'customer' || picker === 'product') && (
         <div className="sheet-back" onClick={() => setPicker('none')}>
           <div className="sheet" onClick={(e) => e.stopPropagation()}>
             <div style={{ fontSize: 16, fontWeight: 600 }}>
               {picker === 'customer' ? 'Which shop?' : 'Add an item'}
             </div>
+            {picker === 'customer' && (
+              <button
+                onClick={() => setPicker('newCustomer')}
+                style={{ display: 'flex', alignItems: 'center', gap: 11, border: '1.5px dashed #b9b9b2', padding: 14, textAlign: 'left' }}
+              >
+                <div style={{ width: 34, height: 34, background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Plus size={17} color="#fff" />
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>New shop</span>
+                  <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>name, PAN and location</span>
+                </div>
+              </button>
+            )}
             {picker === 'product' && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'var(--paper)', border: '1px solid var(--line)', padding: '12px 13px' }}>
                 <Search size={16} color="var(--muted)" />
@@ -273,6 +307,77 @@ export default function Billing() {
                   ))}
             </div>
             <button className="btn ghost" onClick={() => setPicker('none')}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {picker === 'newCustomer' && (
+        <div className="sheet-back" onClick={() => setPicker('customer')}>
+          <div className="sheet" onClick={(e) => e.stopPropagation()}>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 600 }}>New shop</div>
+              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4, lineHeight: 1.5 }}>
+                PAN is required — a bill to a shop without one is a defective invoice.
+              </div>
+            </div>
+
+            <input
+              autoFocus value={newShop.shopName}
+              onChange={(e) => setNewShop({ ...newShop, shopName: e.target.value })}
+              placeholder="Shop name"
+            />
+            <input
+              className="num" value={newShop.pan} inputMode="numeric"
+              onChange={(e) => setNewShop({ ...newShop, pan: e.target.value.replace(/\D/g, '').slice(0, 9) })}
+              placeholder="Buyer PAN (9 digits)"
+            />
+            <div style={{ display: 'flex', gap: 10 }}>
+              <input
+                style={{ flex: 1 }} value={newShop.contactName}
+                onChange={(e) => setNewShop({ ...newShop, contactName: e.target.value })}
+                placeholder="Owner name"
+              />
+              <input
+                style={{ flex: 1 }} className="num" inputMode="tel" value={newShop.phone}
+                onChange={(e) => setNewShop({ ...newShop, phone: e.target.value.replace(/[^0-9+]/g, '').slice(0, 15) })}
+                placeholder="Phone"
+              />
+            </div>
+            <input
+              value={newShop.address}
+              onChange={(e) => setNewShop({ ...newShop, address: e.target.value })}
+              placeholder="Area or tole"
+            />
+
+            <button
+              onClick={async () => {
+                setPinning(true);
+                const pos = await currentPosition();
+                setPinning(false);
+                if (pos) setPin(pos);
+                else setToast('Could not get location — you can pin it later');
+              }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 11, padding: 14, textAlign: 'left',
+                border: `1.5px solid ${pin ? 'var(--ok)' : 'var(--line)'}`,
+                background: pin ? '#eef2ee' : 'var(--card)',
+              }}
+            >
+              {pin ? <Check size={18} color="var(--ok)" /> : <Pin size={18} color="var(--muted)" />}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: pin ? 'var(--ok)' : 'var(--ink)' }}>
+                  {pin ? 'Location pinned' : pinning ? 'Finding you…' : 'Pin location here'}
+                </span>
+                <span className="num" style={{ fontSize: 11, color: 'var(--muted)' }}>
+                  {pin ? `${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)}` : 'stand at the shop and tap — optional'}
+                </span>
+              </div>
+            </button>
+
+            <button className="btn" disabled={!newShopReady} onClick={saveNewShop}>
+              {newShopReady ? 'Save shop' : 'Name and PAN needed'}
+            </button>
+            <button className="btn ghost" onClick={() => setPicker('customer')}>Back</button>
           </div>
         </div>
       )}

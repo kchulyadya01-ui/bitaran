@@ -3,33 +3,35 @@ import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db';
 import { allStock, money } from '../../lib/domain';
-import { useActiveCustomer, useTenant, useTenantId } from '../../lib/hooks';
+import { useCustomerTenant, useCustomerTenantId, useShopRow } from '../../lib/hooks';
 import { useCart } from '../../lib/cart';
-import { ProductArt, ART_TINT } from '../../ui/ProductArt';
+import { ProductArt, tintFor } from '../../ui/ProductArt';
 import { Search, Plus, Minus, Chevron, Shop } from '../../ui/icons';
 
 export default function Browse() {
   const nav = useNavigate();
-  const tenant = useTenant();
-  const tenantId = useTenantId();
-  const customer = useActiveCustomer();
+  const tenant = useCustomerTenant();
+  const tenantId = useCustomerTenantId();
+  const customer = useShopRow();
   const { cart, bump } = useCart();
   const [q, setQ] = useState('');
-  const [cat, setCat] = useState('All');
+  const [cat, setCat] = useState('all');
 
   const data = useLiveQuery(async () => {
     if (!tenantId) return null;
-    const [products, stock] = await Promise.all([
+    const [products, stock, segments] = await Promise.all([
       db.products.where('tenantId').equals(tenantId).toArray(),
       allStock(tenantId),
+      db.segments.where('tenantId').equals(tenantId).toArray(),
     ]);
-    return { products, stock };
+    return { products, stock, segments: segments.sort((a, b) => a.sortOrder - b.sortOrder) };
   }, [tenantId]);
 
-  const cats = ['All', ...new Set((data?.products ?? []).map((p) => p.category))];
+  const segments = data?.segments ?? [];
+  const segmentName = (id: string) => segments.find((s) => s.id === id)?.name ?? '';
   const shown = (data?.products ?? [])
-    .filter((p) => cat === 'All' || p.category === cat)
-    .filter((p) => p.name.toLowerCase().includes(q.toLowerCase()));
+    .filter((p) => cat === 'all' || p.segmentId === cat)
+    .filter((p) => (p.name + ' ' + segmentName(p.segmentId)).toLowerCase().includes(q.toLowerCase()));
 
   const count = Object.values(cart).filter((v) => v > 0).length;
   const total = Object.entries(cart).reduce((s, [id, qty]) => {
@@ -46,7 +48,7 @@ export default function Browse() {
               नमस्ते, {customer?.contactName.split(' ')[0] ?? 'ji'}
             </span>
             <span style={{ fontSize: 12.5, color: 'var(--c-muted)' }}>
-              {tenant?.name.replace(' Pvt. Ltd.', '')} · delivers tomorrow
+              buying from {tenant?.name.replace(' Pvt. Ltd.', '') ?? '—'}
             </span>
           </div>
           <div style={{ width: 42, height: 42, borderRadius: 21, background: '#f1e5d3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -55,11 +57,12 @@ export default function Browse() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--c-card)', border: '1px solid var(--c-line)', borderRadius: 12, padding: '13px 14px' }}>
           <Search size={17} color="var(--c-faint)" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search ice cream, snacks…" style={{ border: 'none', background: 'transparent', padding: 0, fontSize: 14 }} />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search items or companies…" style={{ border: 'none', background: 'transparent', padding: 0, fontSize: 14 }} />
         </div>
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
-          {cats.map((c) => (
-            <button key={c} className={'chip' + (cat === c ? ' on' : '')} style={{ flexShrink: 0 }} onClick={() => setCat(c)}>{c}</button>
+          <button className={'chip' + (cat === 'all' ? ' on' : '')} style={{ flexShrink: 0 }} onClick={() => setCat('all')}>All</button>
+          {segments.map((sg) => (
+            <button key={sg.id} className={'chip' + (cat === sg.id ? ' on' : '')} style={{ flexShrink: 0 }} onClick={() => setCat(sg.id)}>{sg.name}</button>
           ))}
         </div>
       </div>
@@ -72,11 +75,12 @@ export default function Browse() {
             const qty = cart[p.id] ?? 0;
             return (
               <div key={p.id} className="card" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', opacity: out ? 0.6 : 1 }}>
-                <div style={{ height: 88, background: out ? '#f2eae2' : ART_TINT[p.category] ?? '#f5ece0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <ProductArt id={p.id} category={p.category} />
+                <div style={{ height: 88, background: out ? '#f2eae2' : tintFor(p.segmentId), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ProductArt name={p.name} />
                 </div>
                 <div style={{ padding: '10px 11px 11px', display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
-                  <span style={{ fontSize: 12.5, fontWeight: 600, lineHeight: 1.35 }}>{p.name}</span>
+                  <span style={{ fontSize: 10.5, fontWeight: 600, color: 'var(--c-faint)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{segmentName(p.segmentId)}</span>
+                  <span style={{ fontSize: 12.5, fontWeight: 600, lineHeight: 1.35, marginTop: -2 }}>{p.name}</span>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
                     <span className="disp" style={{ fontSize: 17, fontWeight: 600 }}>Rs {money(p.price)}</span>
                     <span style={{ fontSize: 11, color: 'var(--c-muted)' }}>/ {p.unit}</span>

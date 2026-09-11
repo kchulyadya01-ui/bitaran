@@ -6,12 +6,16 @@ Date: 2026-09-11
 
 Everything below runs against IndexedDB on the device, with no network.
 
+**Choosing a side**
+- First run asks whether you supply shops or run one, and the whole app follows: navigation, skin and what you can reach. Changeable from More / Account.
+
 **Dealer**
-- Today's orders, filtered by state, with live counts and the day's figures
+- Today's orders, filtered by state, with live counts, the day's figures, and each order's delivery deadline ("deliver within 1 h · by 5 pm", red once late)
 - Billing: pick a shop, quantity steppers, VAT computed live, cash/credit, existing-debt warning, stock warnings
 - Tax invoice: seller name and PAN, sequential number in the device's own series, Bikram Sambat date, buyer name and PAN, line items, taxable amount, 13% VAT, total, amount in words, ORIGINAL / COPY OF ORIGINAL stamp
 - Delivery route: stops ordered by nearest-neighbour from the depot using real customer coordinates, tick to mark delivered
-- Stock and prices: live stock summed from events, low/out-of-stock states, tap a price to change it (old value kept in history)
+- Stock and prices grouped into **segments** the dealer defines — usually the supplying company (Ben Nevis, Nova, Century), sometimes a type. Add a segment, rename one, add an item with its price, unit, opening stock and low-stock threshold. Tap a price to change it (old value kept in history)
+- Add a customer mid-bill: shop name, buyer PAN, owner, phone, area, and a GPS pin taken at the shop
 - Incoming stock: what is coming and when; marking received posts stock events
 - Dues ledger: balances summed from invoices minus payments, ageing bands, record a payment
 - Reports: 7-day sales chart, best sellers, dues summary, CSV export for the accountant
@@ -19,8 +23,10 @@ Everything below runs against IndexedDB on the device, with no network.
 - Switch between team members — which changes the invoice series letter
 
 **Customer**
-- Catalog with real stock awareness (out-of-stock items are shown, not hidden)
-- Place an order; the draft survives a reload, so a dropped connection loses nothing
+- Choose which supplier to order from — name, address and PAN shown — and the catalog, prices and stock switch with it. A shop registers itself with a supplier the first time it orders from them
+- Catalog with real stock awareness (out-of-stock items are shown, not hidden), grouped by the supplier's segments
+- Place an order with a promised window: pick a day, then Morning / Midday / Afternoon / Evening. Past slots are disabled. The dealer sees that deadline on the order and on the route
+- The draft survives a reload, so a dropped connection loses nothing
 - Track status through the four states
 - Bills and outstanding balance
 
@@ -61,11 +67,12 @@ Every table carries `tenantId` and every query is scoped by it, but there is one
 business and no signup. Needed: the signup flow from the designs, tenant provisioning, and
 per-tenant invoice-prefix assignment.
 
-### 4. Missing create/edit flows
+### 4. Remaining create/edit gaps
 
-You cannot yet add a customer, add a product, or log a new incoming shipment from the app —
-only use and edit what is seeded. Adding a customer matters most, because a bill needs a
-buyer PAN and there is no way to enter one.
+Adding a customer, a segment and a product all work now. Still missing: editing or removing
+an existing customer or product, and logging a new incoming shipment from the Main Dealer
+(receiving one works). A product also cannot be moved between segments, and a segment cannot
+be deleted or reordered.
 
 ### 5. Invoice cancellation and credit notes
 
@@ -123,8 +130,8 @@ balance and stock derivation, and status-rank resolution.
 ## Suggested order
 
 1. Server + sync + auth (items 1–2) — nothing else is real until two phones agree
-2. Add-customer and add-product flows (item 4) — the app cannot be used on live data without them
-3. Cancellation and credit notes (item 5) — needed before real billing, and the accountant's answer gates it
+2. Cancellation and credit notes (item 5) — needed before real billing, and the accountant's answer gates it
+3. Edit/remove for customers and products (item 4)
 4. Receipt as an image (item 9), audit log viewer (item 7), tests (item 13)
 5. Real map tiles (item 8), language (item 10)
 

@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, STATUS_RANK, type OrderStatus } from '../../lib/db';
 import { bs, money, resolveStatus, vatOf } from '../../lib/domain';
-import { useActiveCustomer, useTenant } from '../../lib/hooks';
+import { useShopRows } from '../../lib/hooks';
 import { Van, Check, Whats, Chevron } from '../../ui/icons';
 
 const STEPS: { id: OrderStatus; label: string; blank: string }[] = [
@@ -15,30 +15,31 @@ const STEPS: { id: OrderStatus; label: string; blank: string }[] = [
 export default function Track() {
   const { id } = useParams();
   const nav = useNavigate();
-  const tenant = useTenant();
-  const customer = useActiveCustomer();
+  const shopRows = useShopRows();
 
   const data = useLiveQuery(async () => {
-    if (!customer) return null;
-    const orders = await db.orders.where('customerId').equals(customer.id).reverse().sortBy('placedAt');
+    if (!shopRows.length) return null;
+    const ids = shopRows.map((r) => r.id);
+    const orders = (await db.orders.where('customerId').anyOf(ids).toArray()).sort((a, b) => b.placedAt - a.placedAt);
     const order = id ? orders.find((o) => o.id === id) : orders[0];
     if (!order) return { order: null, orders };
-    const [lines, events, products, invoice] = await Promise.all([
+    const [lines, events, products, invoice, supplier] = await Promise.all([
       db.orderLines.where('orderId').equals(order.id).toArray(),
       db.orderEvents.where('orderId').equals(order.id).toArray(),
       db.products.toArray(),
-      db.invoices.where('customerId').equals(customer.id).toArray(),
+      db.invoices.where('customerId').anyOf(ids).toArray(),
+      db.tenants.get(order.tenantId),
     ]);
     const byId = Object.fromEntries(products.map((p) => [p.id, p]));
     const priced = lines.map((l) => ({ ...l, name: byId[l.productId]?.name ?? '?', price: byId[l.productId]?.price ?? 0 }));
     const subtotal = priced.reduce((s, l) => s + l.qty * l.price, 0);
     return {
-      order, orders, events, priced,
+      order, orders, events, priced, supplier,
       status: resolveStatus(events),
       total: subtotal + vatOf(subtotal),
       invoice: invoice.find((i) => i.orderId === order.id),
     };
-  }, [customer?.id, id]);
+  }, [shopRows.map((r) => r.id).join(','), id]);
 
   if (!data) return <div className="scroll" style={{ padding: 24 }}><span className="lbl">loading</span></div>;
   if (!data.order) {
@@ -54,7 +55,7 @@ export default function Track() {
     );
   }
 
-  const { order, orders, status, priced, total, invoice, events } = data;
+  const { order, orders, status, priced, total, invoice, events, supplier } = data;
   const rank = STATUS_RANK[status!];
   const timeOf = (s: OrderStatus) => events!.find((e) => e.status === s)?.occurredAt;
 
@@ -66,7 +67,7 @@ export default function Track() {
             Order {bs(order.placedAt).year}-{String(order.placedAt).slice(-4)}
           </span>
           <span style={{ fontSize: 12, color: 'var(--c-muted)' }}>
-            placed {new Date(order.placedAt).toLocaleString([], { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}
+            {supplier?.name.replace(' Pvt. Ltd.', '')} · placed {new Date(order.placedAt).toLocaleString([], { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}
           </span>
         </div>
         {orders.length > 1 && (
@@ -87,7 +88,11 @@ export default function Track() {
                 {status === 'placed' ? 'Waiting for dealer' : status === 'confirmed' ? 'Confirmed' : status === 'out_for_delivery' ? 'On the way' : status === 'delivered' ? 'Delivered' : 'Cancelled'}
               </span>
               <span style={{ fontSize: 12.5, color: '#bfae9a' }}>
-                {status === 'delivered' ? 'thank you' : status === 'out_for_delivery' ? 'arriving today' : `from ${tenant?.name.replace(' Pvt. Ltd.', '')}`}
+                {status === 'delivered'
+                  ? 'thank you'
+                  : order.deliverWindow
+                    ? order.deliverWindow.toLowerCase()
+                    : `from ${supplier?.name.replace(' Pvt. Ltd.', '') ?? ''}`}
               </span>
             </div>
           </div>
@@ -140,13 +145,13 @@ export default function Track() {
       <div style={{ padding: '14px 18px 18px', display: 'flex', gap: 10 }}>
         <a
           className="btn warm ghost" style={{ flex: 1, height: 54, textDecoration: 'none' }}
-          href={`tel:${tenant?.phone ?? ''}`}
+          href={`tel:${supplier?.phone ?? ''}`}
         >
           Call dealer
         </a>
         <a
           className="btn warm ghost" style={{ width: 54, height: 54, flex: 'none' }}
-          href={`https://wa.me/977${(tenant?.phone ?? '').replace(/\D/g, '')}`} target="_blank" rel="noreferrer" aria-label="WhatsApp"
+          href={`https://wa.me/977${(supplier?.phone ?? '').replace(/\D/g, '')}`} target="_blank" rel="noreferrer" aria-label="WhatsApp"
         >
           <Whats size={19} color="var(--c-ink)" />
         </a>

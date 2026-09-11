@@ -190,6 +190,20 @@ Local IndexedDB is the source of truth on the Dealer device. The server is a syn
 
 ---
 
+### Catalog segments
+
+Products are grouped into **segments** the dealer creates — in practice the supplying company
+(Ben Nevis, Nova, Century), sometimes a product type. They are a first-class table rather than a
+string on the product, so renaming a company does not have to touch every row, and a segment can
+later carry its own supplier contact and ordering cadence.
+
+### Delivery deadlines
+
+An order carries `deliverBy` (a timestamp) and `deliverWindow` (the words the customer saw).
+The customer picks a day plus a slot — Morning, Midday, Afternoon, Evening — and the slot's end
+hour becomes the deadline. Storing both matters: the timestamp is what the dealer's screens sort
+and colour by, and the label is what was actually promised, which is what a dispute is about.
+
 ## 6. Data model sketch
 
 Append-only (Class 1):

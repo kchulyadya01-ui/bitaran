@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db';
-import { markOrderStatus, money, resolveStatus } from '../../lib/domain';
+import { dueLabel, markOrderStatus, money, resolveStatus } from '../../lib/domain';
 import { useTenantId } from '../../lib/hooks';
 import { Check } from '../../ui/icons';
 
@@ -51,7 +51,13 @@ export default function RouteScreen() {
         const status = resolveStatus(events);
         const inv = invoices.find((i) => i.orderId === o.id && i.status === 'issued');
         const c = byCustomer[o.customerId];
-        return { orderId: o.id, status, shop: c?.shopName ?? '?', lat: c?.lat ?? 0, lng: c?.lng ?? 0, amount: inv?.total ?? 0, paid: inv?.paymentType === 'cash' };
+        return {
+          orderId: o.id, status, shop: c?.shopName ?? '?',
+          lat: c?.lat ?? 0, lng: c?.lng ?? 0,
+          pinned: !!c?.lat && !!c?.lng,
+          deliverBy: o.deliverBy,
+          amount: inv?.total ?? 0, paid: inv?.paymentType === 'cash',
+        };
       }),
     );
     return rows.filter((r) => r.status === 'confirmed' || r.status === 'out_for_delivery' || r.status === 'delivered');
@@ -59,7 +65,11 @@ export default function RouteScreen() {
 
   const stops = useMemo(() => {
     if (!raw) return [];
-    const pending = orderStops(raw.filter((r) => r.status !== 'delivered'));
+    // A shop with no pin cannot be routed, but it still has to be delivered -
+    // so it goes at the end of the list rather than on the map at (0, 0).
+    const routable = raw.filter((r) => r.status !== 'delivered' && r.pinned);
+    const unpinned = raw.filter((r) => r.status !== 'delivered' && !r.pinned);
+    const pending = [...orderStops(routable), ...unpinned];
     const done = raw.filter((r) => r.status === 'delivered');
     return [...done, ...pending];
   }, [raw]);
@@ -74,7 +84,7 @@ export default function RouteScreen() {
 
   // Plot real coordinates into the map box.
   const box = useMemo(() => {
-    const pts = [DEPOT, ...stops];
+    const pts = [DEPOT, ...stops.filter((s) => s.pinned)];
     const lats = pts.map((p) => p.lat);
     const lngs = pts.map((p) => p.lng);
     const pad = 0.004;
@@ -91,7 +101,7 @@ export default function RouteScreen() {
   });
 
   const pending = stops.filter((s) => s.status !== 'delivered');
-  const path = [DEPOT, ...pending].map(xy).map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+  const path = [DEPOT, ...pending.filter((p) => p.pinned)].map(xy).map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
 
   return (
     <>
@@ -106,7 +116,7 @@ export default function RouteScreen() {
           </g>
           <path d={path} fill="none" stroke="#16181a" strokeWidth="2.6" strokeDasharray="1 8" strokeLinecap="round" />
           <circle cx={xy(DEPOT).x} cy={xy(DEPOT).y} r="6" fill="#0a5c36" />
-          {stops.map((s, i) => {
+          {stops.filter((s) => s.pinned).map((s, i) => {
             const p = xy(s);
             const done = s.status === 'delivered';
             const next = !done && s.orderId === pending[0]?.orderId;
@@ -156,8 +166,13 @@ export default function RouteScreen() {
                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                   }}>{s.shop}</span>
                   <span className="num" style={{ fontSize: 11, color: 'var(--muted)' }}>
-                    {money(s.amount)} · {s.paid ? 'paid' : 'credit'} · {km(DEPOT, s).toFixed(1)} km
+                    {money(s.amount)} · {s.paid ? 'paid' : 'credit'} · {s.pinned ? `${km(DEPOT, s).toFixed(1)} km` : 'no pin'}
                   </span>
+                  {!done && s.deliverBy && (() => {
+                    const due = dueLabel(s.deliverBy);
+                    const c = due.tone === 'bad' ? 'var(--bad)' : due.tone === 'warn' ? 'var(--warn)' : 'var(--muted)';
+                    return <span className="num" style={{ fontSize: 11, color: c, fontWeight: due.tone === 'muted' ? 400 : 600 }}>deliver {due.text}</span>;
+                  })()}
                 </div>
                 <button
                   onClick={() => markOrderStatus(s.orderId, done ? 'out_for_delivery' : 'delivered')}

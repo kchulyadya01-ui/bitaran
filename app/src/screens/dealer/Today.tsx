@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type OrderStatus } from '../../lib/db';
-import { bs, money, resolveStatus, allBalances } from '../../lib/domain';
+import { bs, money, resolveStatus, allBalances, dueLabel } from '../../lib/domain';
 import { useTenant, useTenantId, usePending, useOnline } from '../../lib/hooks';
-import { Sync, NoWifi, Plus } from '../../ui/icons';
+import { Sync, NoWifi, Plus, Clock } from '../../ui/icons';
 
 type Tab = 'new' | 'billed' | 'out' | 'done';
 
@@ -42,6 +42,8 @@ export default function Today() {
         return {
           id: o.id,
           shop: byCustomer[o.customerId]?.shopName ?? 'Unknown shop',
+          deliverBy: o.deliverBy,
+          deliverWindow: o.deliverWindow,
           customerId: o.customerId,
           itemCount: lines.length,
           placedAt: o.placedAt,
@@ -149,6 +151,18 @@ export default function Today() {
                       {hot ? 'MAKE BILL' : r.status === 'confirmed' ? 'BILLED' : r.status === 'out_for_delivery' ? 'ON VAN' : 'DONE'}
                     </span>
                   </div>
+                  {r.deliverBy && r.status !== 'delivered' && (() => {
+                    const due = dueLabel(r.deliverBy);
+                    const c = due.tone === 'bad' ? 'var(--bad)' : due.tone === 'warn' ? 'var(--warn)' : 'var(--muted)';
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', paddingTop: 2, borderTop: '1px solid var(--hair)', marginTop: 2 }}>
+                        <Clock size={13} color={c} />
+                        <span className="num" style={{ fontSize: 11.5, color: c, fontWeight: due.tone === 'muted' ? 400 : 600 }}>
+                          deliver {due.text}
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </button>
               );
             })}

@@ -1,21 +1,18 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, setMeta } from '../../lib/db';
 import { resetAll } from '../../lib/seed';
-import { useActiveUser, useActiveCustomer, useTenant, useTenantId } from '../../lib/hooks';
+import { useActiveUser, useTenant, useTenantId } from '../../lib/hooks';
 import { Chevron, Person, Shop, Receipt, Bars, Sync, Grid } from '../../ui/icons';
 
 export default function More() {
-  const nav = useNavigate();
   const tenant = useTenant();
   const tenantId = useTenantId();
   const user = useActiveUser();
-  const customer = useActiveCustomer();
-  const [pick, setPick] = useState<'none' | 'user' | 'shop'>('none');
+  const [pick, setPick] = useState<'none' | 'user'>('none');
 
   const users = useLiveQuery(async () => (tenantId ? db.users.where('tenantId').equals(tenantId).toArray() : []), [tenantId], []);
-  const customers = useLiveQuery(async () => (tenantId ? db.customers.where('tenantId').equals(tenantId).toArray() : []), [tenantId], []);
 
   const links = [
     { to: '/incoming', label: 'Incoming stock', sub: 'what the Main Dealer is sending', Icon: Grid },
@@ -67,18 +64,18 @@ export default function More() {
             ))}
           </div>
 
-          <div className="card" style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <span className="lbl">Customer side</span>
-            <button onClick={() => setPick('shop')} style={{ display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
-              <Shop size={20} color="var(--muted)" />
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                <span style={{ fontSize: 14.5, fontWeight: 600 }}>{customer?.shopName ?? 'Pick a shop'}</span>
-                <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>view the app as this customer</span>
-              </div>
-              <Chevron size={16} color="var(--faint)" />
-            </button>
-            <button className="btn ghost" style={{ height: 48 }} onClick={() => nav('/shop')}>Open customer app</button>
-          </div>
+          <button
+            onClick={() => setMeta('appRole', undefined)}
+            className="card"
+            style={{ padding: 16, display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}
+          >
+            <Shop size={19} color="var(--muted)" />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <span style={{ fontSize: 14.5, fontWeight: 600 }}>Change role</span>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>switch to the shop-owner side</span>
+            </div>
+            <Chevron size={16} color="var(--faint)" />
+          </button>
 
           <button
             style={{ fontSize: 12.5, color: 'var(--bad)', fontWeight: 600, padding: 12 }}
@@ -92,26 +89,17 @@ export default function More() {
       {pick !== 'none' && (
         <div className="sheet-back" onClick={() => setPick('none')}>
           <div className="sheet" onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: 16, fontWeight: 600 }}>{pick === 'user' ? 'Switch person' : 'View as shop'}</div>
+            <div style={{ fontSize: 16, fontWeight: 600 }}>Switch person</div>
             <div style={{ maxHeight: '50vh', overflowY: 'auto' }} className="rows">
-              {pick === 'user'
-                ? users.map((u) => (
-                    <button key={u.id} className="row" style={{ textAlign: 'left' }} onClick={async () => { await setMeta('activeUserId', u.id); setPick('none'); }}>
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                        <span style={{ fontSize: 14.5, fontWeight: 600 }}>{u.name}</span>
-                        <span className="num" style={{ fontSize: 11, color: 'var(--muted)' }}>{u.role}{u.prefix ? ` · series ${u.prefix}` : ' · no billing'}</span>
-                      </div>
-                      {u.id === user?.id && <span className="lbl" style={{ color: 'var(--ok)' }}>current</span>}
-                    </button>
-                  ))
-                : customers.map((c) => (
-                    <button key={c.id} className="row" style={{ textAlign: 'left' }} onClick={async () => { await setMeta('activeCustomerId', c.id); setPick('none'); nav('/shop'); }}>
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
-                        <span style={{ fontSize: 14.5, fontWeight: 600 }}>{c.shopName}</span>
-                        <span className="num" style={{ fontSize: 11, color: 'var(--muted)' }}>{c.address}</span>
-                      </div>
-                    </button>
-                  ))}
+              {users.map((u) => (
+                <button key={u.id} className="row" style={{ textAlign: 'left' }} onClick={async () => { await setMeta('activeUserId', u.id); setPick('none'); }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <span style={{ fontSize: 14.5, fontWeight: 600 }}>{u.name}</span>
+                    <span className="num" style={{ fontSize: 11, color: 'var(--muted)' }}>{u.role}{u.prefix ? ` · series ${u.prefix}` : ' · no billing'}</span>
+                  </div>
+                  {u.id === user?.id && <span className="lbl" style={{ color: 'var(--ok)' }}>current</span>}
+                </button>
+              ))}
             </div>
             <button className="btn ghost" onClick={() => setPick('none')}>Close</button>
           </div>

@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db';
-import { bs, receiveIncoming } from '../../lib/domain';
+import { bs, clock, receiveIncoming } from '../../lib/domain';
 import { useTenantId, useToast } from '../../lib/hooks';
 import { Check, Plus } from '../../ui/icons';
 
@@ -56,7 +56,7 @@ export default function Incoming() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 9 }}>
                     <span className="num" style={{ fontSize: 26, fontWeight: 600 }}>
-                      {new Date(inc.expectedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                      {clock(inc.expectedAt)}
                     </span>
                     <span style={{ fontSize: 13, color: 'var(--faint)' }}>{bs(inc.expectedAt).dayMonth}</span>
                   </div>
@@ -92,7 +92,7 @@ export default function Incoming() {
                   <span className="num" style={{ fontSize: 20, fontWeight: 600 }}>{bs(inc.expectedAt).dayMonth}</span>
                   <span style={{ fontSize: 12, color: 'var(--muted)' }}>
                     {inc.timeConfirmed
-                      ? new Date(inc.expectedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+                      ? clock(inc.expectedAt)
                       : inc.status === 'ordered' ? 'ordered, not confirmed' : 'time not confirmed'}
                   </span>
                 </div>

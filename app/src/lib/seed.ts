@@ -1,18 +1,52 @@
-import { db, uid, setMeta, getMeta, type Product, type Customer } from './db';
+import { db, uid, setMeta, getMeta, type Product, type Customer, type Segment } from './db';
 import { fiscalYearOf, formatInvoiceNumber, vatOf } from './domain';
 
-const TENANT = 'tenant-himal';
+const TENANT = 'tenant-gk';
+const TENANT2 = 'tenant-manakamana';
 const DAY = 86_400_000;
+const HOUR = 3_600_000;
 
+/** Bump when the seed shape changes, so old demo data is replaced rather than mixed. */
+const SEED_VERSION = 4;
+
+const SEGMENTS: Omit<Segment, 'tenantId' | 'updatedAt' | 'updatedByDevice'>[] = [
+  { id: 'seg-bennevis', name: 'Ben Nevis', sortOrder: 1 },
+  { id: 'seg-nova', name: 'Nova', sortOrder: 2 },
+  { id: 'seg-century', name: 'Century', sortOrder: 3 },
+];
+
+// Placeholder catalog — replace the items and prices with the real ones per company.
 const PRODUCTS: Omit<Product, 'tenantId' | 'updatedAt' | 'updatedByDevice'>[] = [
-  { id: 'p-cornetto', name: 'Cornetto Choco Vanilla', nameNp: 'कर्नेटो', unit: 'pc', price: 80, category: 'Ice cream', lowStockAt: 50 },
-  { id: 'p-chocobar', name: 'Chocobar 60ml', nameNp: 'चकबार', unit: 'pc', price: 45, category: 'Ice cream', lowStockAt: 50 },
-  { id: 'p-family', name: 'Family Pack Vanilla 1L', unit: 'box', price: 420, category: 'Ice cream', lowStockAt: 20 },
-  { id: 'p-kulfi', name: 'Malai Kulfi 80ml', nameNp: 'कुल्फी', unit: 'pc', price: 60, category: 'Ice cream', lowStockAt: 40 },
-  { id: 'p-waiwai', name: 'Wai Wai Chicken 75g', unit: 'pkt', price: 25, category: 'Noodles', lowStockAt: 100 },
-  { id: 'p-lays', name: 'Lays Classic Salted 52g', unit: 'pkt', price: 55, category: 'Snacks', lowStockAt: 60 },
-  { id: 'p-kurkure', name: 'Kurkure Masala Munch', unit: 'pkt', price: 20, category: 'Snacks', lowStockAt: 60 },
-  { id: 'p-current', name: 'Current Noodles 70g', unit: 'pkt', price: 20, category: 'Noodles', lowStockAt: 100 },
+  { id: 'bn-cone', segmentId: 'seg-bennevis', name: 'Chocolate Cone', unit: 'pc', price: 80, lowStockAt: 50 },
+  { id: 'bn-cup', segmentId: 'seg-bennevis', name: 'Vanilla Cup 100ml', unit: 'pc', price: 50, lowStockAt: 60 },
+  { id: 'bn-chocobar', segmentId: 'seg-bennevis', name: 'Chocobar 60ml', nameNp: 'चकबार', unit: 'pc', price: 45, lowStockAt: 50 },
+  { id: 'bn-kulfi', segmentId: 'seg-bennevis', name: 'Malai Kulfi 80ml', nameNp: 'कुल्फी', unit: 'pc', price: 60, lowStockAt: 40 },
+  { id: 'bn-family', segmentId: 'seg-bennevis', name: 'Family Pack Vanilla 1L', unit: 'box', price: 420, lowStockAt: 20 },
+
+  { id: 'nv-dolly', segmentId: 'seg-nova', name: 'Mango Dolly', unit: 'pc', price: 25, lowStockAt: 80 },
+  { id: 'nv-kulfi', segmentId: 'seg-nova', name: 'Kulfi Stick', unit: 'pc', price: 40, lowStockAt: 50 },
+  { id: 'nv-butterscotch', segmentId: 'seg-nova', name: 'Butterscotch Cup 100ml', unit: 'pc', price: 55, lowStockAt: 40 },
+  { id: 'nv-family', segmentId: 'seg-nova', name: 'Family Pack Strawberry 1L', unit: 'box', price: 400, lowStockAt: 15 },
+
+  { id: 'ct-chicken', segmentId: 'seg-century', name: 'Chicken Noodles 75g', unit: 'pkt', price: 25, lowStockAt: 100 },
+  { id: 'ct-veg', segmentId: 'seg-century', name: 'Veg Noodles 75g', unit: 'pkt', price: 22, lowStockAt: 100 },
+  { id: 'ct-munch', segmentId: 'seg-century', name: 'Masala Munch 40g', unit: 'pkt', price: 20, lowStockAt: 60 },
+  { id: 'ct-chips', segmentId: 'seg-century', name: 'Salted Chips 52g', unit: 'pkt', price: 55, lowStockAt: 60 },
+];
+
+/** A second distributor, so "choose your supplier" is a real choice. */
+const SEGMENTS2: Omit<Segment, 'tenantId' | 'updatedAt' | 'updatedByDevice'>[] = [
+  { id: 'seg2-nebico', name: 'Nebico', sortOrder: 1 },
+  { id: 'seg2-sujal', name: 'Sujal', sortOrder: 2 },
+];
+
+const PRODUCTS2: Omit<Product, 'tenantId' | 'updatedAt' | 'updatedByDevice'>[] = [
+  { id: 'nb-glucose', segmentId: 'seg2-nebico', name: 'Glucose Biscuit 100g', unit: 'pkt', price: 30, lowStockAt: 80 },
+  { id: 'nb-coconut', segmentId: 'seg2-nebico', name: 'Coconut Crunch 120g', unit: 'pkt', price: 45, lowStockAt: 60 },
+  { id: 'nb-thin', segmentId: 'seg2-nebico', name: 'Thin Arrowroot 200g', unit: 'pkt', price: 60, lowStockAt: 40 },
+  { id: 'sj-cone', segmentId: 'seg2-sujal', name: 'Choco Cone', unit: 'pc', price: 75, lowStockAt: 50 },
+  { id: 'sj-cup', segmentId: 'seg2-sujal', name: 'Strawberry Cup 100ml', unit: 'pc', price: 50, lowStockAt: 50 },
+  { id: 'sj-family', segmentId: 'seg2-sujal', name: 'Family Pack Butterscotch 1L', unit: 'box', price: 430, lowStockAt: 15 },
 ];
 
 const CUSTOMERS: Omit<Customer, 'tenantId' | 'updatedAt' | 'updatedByDevice'>[] = [
@@ -28,6 +62,22 @@ const CUSTOMERS: Omit<Customer, 'tenantId' | 'updatedAt' | 'updatedByDevice'>[] 
   { id: 'c-byasi', shopName: 'Byasi Chowk Shop', contactName: 'Gita Twayana', phone: '9841000110', pan: '601234576', address: 'Byasi Chowk', lat: 27.6758, lng: 85.4330 },
 ];
 
+/** Delivery promise slots the customer chooses from. `endHour` is the deadline. */
+export const SLOTS = [
+  { id: 'morning', label: 'Morning', range: '8 am – 11 am', endHour: 11 },
+  { id: 'midday', label: 'Midday', range: '11 am – 2 pm', endHour: 14 },
+  { id: 'afternoon', label: 'Afternoon', range: '2 pm – 5 pm', endHour: 17 },
+  { id: 'evening', label: 'Evening', range: '5 pm – 8 pm', endHour: 20 },
+];
+
+export function deadlineFor(dayOffset: number, slotId: string): { at: number; label: string } {
+  const slot = SLOTS.find((s) => s.id === slotId) ?? SLOTS[1];
+  const d = new Date(Date.now() + dayOffset * DAY);
+  d.setHours(slot.endHour, 0, 0, 0);
+  const dayWord = dayOffset === 0 ? 'Today' : dayOffset === 1 ? 'Tomorrow' : d.toLocaleDateString([], { weekday: 'long' });
+  return { at: d.getTime(), label: `${dayWord}, by ${slot.range.split('–')[1].trim()}` };
+}
+
 let seeding: Promise<void> | null = null;
 
 /** React StrictMode mounts twice; without this guard both runs race and Dexie throws. */
@@ -40,25 +90,36 @@ async function doSeed() {
   if (!(await getMeta<string>('deviceId'))) {
     await setMeta('deviceId', 'device-' + uid().slice(-6));
   }
+
+  const version = await getMeta<number>('seedVersion');
   const already = await db.tenants.count();
-  if (already > 0) {
+
+  if (already > 0 && version === SEED_VERSION) {
     await setMeta('activeTenantId', TENANT);
     if (!(await getMeta<string>('activeUserId'))) await setMeta('activeUserId', 'u-ramesh');
     if (!(await getMeta<string>('activeCustomerId'))) await setMeta('activeCustomerId', 'c-shyam');
+    if (!(await getMeta<string>('customerTenantId'))) await setMeta('customerTenantId', TENANT);
+    if (!(await getMeta<string>('shopPhone'))) await setMeta('shopPhone', CUSTOMERS[0].phone);
     return;
+  }
+
+  // Demo data only — no real bills exist yet, so replacing it wholesale is safe.
+  if (already > 0) {
+    await Promise.all(db.tables.filter((t) => t.name !== 'meta').map((t) => t.clear()));
   }
 
   const now = Date.now();
   const deviceId = (await getMeta<string>('deviceId'))!;
+  const stamp = { tenantId: TENANT, updatedAt: now, updatedByDevice: deviceId };
 
   await db.tenants.add({
     id: TENANT,
-    name: 'Himal Distributors Pvt. Ltd.',
+    name: 'G.K Suppliers Pvt. Ltd.',
     pan: '301122334',
     address: 'Suryabinayak-4, Bhaktapur',
     phone: '01-6612345',
     vatRegistered: true,
-    categories: ['Ice cream', 'Snacks', 'Noodles'],
+    categories: SEGMENTS.map((s) => s.name),
   });
 
   await db.users.bulkAdd([
@@ -68,14 +129,16 @@ async function doSeed() {
     { id: 'u-bibek', tenantId: TENANT, name: 'Bibek Duwal', phone: '9818100022', role: 'rider' },
   ]);
 
-  await db.products.bulkAdd(PRODUCTS.map((p) => ({ ...p, tenantId: TENANT, updatedAt: now, updatedByDevice: deviceId })));
-  await db.customers.bulkAdd(CUSTOMERS.map((c) => ({ ...c, tenantId: TENANT, updatedAt: now, updatedByDevice: deviceId })));
+  await db.segments.bulkAdd(SEGMENTS.map((s) => ({ ...s, ...stamp })));
+  await db.products.bulkAdd(PRODUCTS.map((p) => ({ ...p, ...stamp })));
+  await db.customers.bulkAdd(CUSTOMERS.map((c) => ({ ...c, ...stamp })));
 
-  // Opening stock, as one received shipment 6 days ago.
-  // Sized so the older credit bills below do not drain everything to zero.
+  // Opening stock, as one received shipment 6 days ago. Masala Munch is deliberately
+  // at zero so the out-of-stock and incoming-shipment states are visible.
   const opening: Record<string, number> = {
-    'p-cornetto': 360, 'p-chocobar': 76, 'p-family': 94, 'p-kulfi': 170,
-    'p-waiwai': 720, 'p-lays': 300, 'p-kurkure': 0, 'p-current': 340,
+    'bn-cone': 360, 'bn-cup': 220, 'bn-chocobar': 76, 'bn-kulfi': 170, 'bn-family': 94,
+    'nv-dolly': 480, 'nv-kulfi': 260, 'nv-butterscotch': 150, 'nv-family': 60,
+    'ct-chicken': 720, 'ct-veg': 540, 'ct-munch': 0, 'ct-chips': 300,
   };
   await db.stockEvents.bulkAdd(
     Object.entries(opening)
@@ -86,27 +149,32 @@ async function doSeed() {
       })),
   );
 
-  // A few open customer orders waiting to be billed.
-  const openOrders: { customerId: string; lines: [string, number][]; agoMin: number }[] = [
-    { customerId: 'c-shyam', lines: [['p-cornetto', 24], ['p-waiwai', 10], ['p-lays', 6]], agoMin: 180 },
-    { customerId: 'c-sagarmatha', lines: [['p-chocobar', 20], ['p-current', 30]], agoMin: 140 },
-    { customerId: 'c-nyatapola', lines: [['p-family', 12], ['p-kulfi', 40], ['p-cornetto', 60]], agoMin: 95 },
-    { customerId: 'c-durbar', lines: [['p-lays', 12], ['p-kurkure', 10]], agoMin: 40 },
+  // Open customer orders, each with a promised delivery deadline.
+  const openOrders: { customerId: string; lines: [string, number][]; agoMin: number; dayOffset: number; slot: string }[] = [
+    { customerId: 'c-shyam', lines: [['bn-cone', 24], ['ct-chicken', 10], ['ct-chips', 6]], agoMin: 180, dayOffset: 0, slot: 'afternoon' },
+    { customerId: 'c-sagarmatha', lines: [['bn-chocobar', 20], ['ct-veg', 30]], agoMin: 140, dayOffset: 0, slot: 'evening' },
+    { customerId: 'c-nyatapola', lines: [['bn-family', 12], ['bn-kulfi', 40], ['bn-cone', 60]], agoMin: 95, dayOffset: 1, slot: 'morning' },
+    { customerId: 'c-durbar', lines: [['nv-dolly', 40], ['ct-munch', 10]], agoMin: 40, dayOffset: 1, slot: 'midday' },
   ];
   for (const o of openOrders) {
     const orderId = uid();
-    await db.orders.add({ id: orderId, tenantId: TENANT, customerId: o.customerId, placedAt: now - o.agoMin * 60_000 });
+    const due = deadlineFor(o.dayOffset, o.slot);
+    await db.orders.add({
+      id: orderId, tenantId: TENANT, customerId: o.customerId,
+      placedAt: now - o.agoMin * 60_000,
+      deliverBy: due.at, deliverWindow: due.label,
+    });
     await db.orderLines.bulkAdd(o.lines.map(([productId, qty]) => ({ id: uid(), orderId, productId, qty })));
     await db.orderEvents.add({ id: uid(), orderId, status: 'placed', occurredAt: now - o.agoMin * 60_000, createdBy: o.customerId });
   }
 
   // Older credit bills, so the dues ledger has something real in it.
   const history: { customerId: string; daysAgo: number; lines: [string, number][]; paid?: number }[] = [
-    { customerId: 'c-nyatapola', daysAgo: 62, lines: [['p-family', 30], ['p-cornetto', 120]] },
-    { customerId: 'c-byasi', daysAgo: 41, lines: [['p-waiwai', 200], ['p-lays', 60]] },
-    { customerId: 'c-shyam', daysAgo: 22, lines: [['p-cornetto', 60], ['p-chocobar', 40]] },
-    { customerId: 'c-thimi', daysAgo: 9, lines: [['p-kulfi', 50], ['p-current', 80]] },
-    { customerId: 'c-taumadhi', daysAgo: 4, lines: [['p-lays', 30], ['p-waiwai', 40]], paid: 1000 },
+    { customerId: 'c-nyatapola', daysAgo: 62, lines: [['bn-family', 30], ['bn-cone', 120]] },
+    { customerId: 'c-byasi', daysAgo: 41, lines: [['ct-chicken', 200], ['ct-chips', 60]] },
+    { customerId: 'c-shyam', daysAgo: 22, lines: [['bn-cone', 60], ['bn-chocobar', 40]] },
+    { customerId: 'c-thimi', daysAgo: 9, lines: [['nv-kulfi', 50], ['ct-veg', 80]] },
+    { customerId: 'c-taumadhi', daysAgo: 4, lines: [['nv-dolly', 60], ['ct-chicken', 40]], paid: 1000 },
   ];
   const fy = fiscalYearOf();
   let seq = 1;
@@ -144,16 +212,16 @@ async function doSeed() {
   }
   await db.counters.put({ key: `${TENANT}|A|${fy}`, next: seq });
 
-  // Incoming from the Main Dealer.
-  const incomings: { ref: string; inDays: number; status: 'ordered' | 'confirmed'; timeConfirmed: boolean; lines: [string, number][]; note?: string }[] = [
-    { ref: 'MD/2083/0412', inDays: 0, status: 'confirmed', timeConfirmed: true, lines: [['p-kurkure', 40], ['p-chocobar', 300], ['p-family', 48]] },
-    { ref: 'MD/2083/0418', inDays: 2, status: 'confirmed', timeConfirmed: false, lines: [['p-cornetto', 240], ['p-lays', 120], ['p-waiwai', 360]] },
-    { ref: 'MD/2083/0421', inDays: 6, status: 'ordered', timeConfirmed: false, lines: [['p-kulfi', 200], ['p-current', 400]], note: 'Monthly ice cream restock' },
+  // Incoming from the Main Dealer, per supplying company.
+  const incomings: { ref: string; inDays: number; hour: number; status: 'ordered' | 'confirmed'; timeConfirmed: boolean; lines: [string, number][]; note?: string }[] = [
+    { ref: 'CENTURY/2083/0412', inDays: 0, hour: 14.5, status: 'confirmed', timeConfirmed: true, lines: [['ct-munch', 40], ['ct-chicken', 300], ['ct-chips', 120]] },
+    { ref: 'BENNEVIS/2083/0418', inDays: 2, hour: 10, status: 'confirmed', timeConfirmed: false, lines: [['bn-cone', 240], ['bn-chocobar', 200], ['bn-family', 48]] },
+    { ref: 'NOVA/2083/0421', inDays: 6, hour: 11, status: 'ordered', timeConfirmed: false, lines: [['nv-dolly', 400], ['nv-kulfi', 200]], note: 'Monthly Nova restock' },
   ];
   for (const inc of incomings) {
     const id = uid();
     const at = new Date(now + inc.inDays * DAY);
-    at.setHours(14, 30, 0, 0);
+    at.setHours(Math.floor(inc.hour), (inc.hour % 1) * 60, 0, 0);
     await db.incoming.add({
       id, tenantId: TENANT, ref: inc.ref, expectedAt: at.getTime(),
       timeConfirmed: inc.timeConfirmed, status: inc.status, note: inc.note,
@@ -161,9 +229,35 @@ async function doSeed() {
     await db.incomingLines.bulkAdd(inc.lines.map(([productId, qty]) => ({ id: uid(), incomingId: id, productId, qty })));
   }
 
+  // Second distributor: its own PAN, address, catalog and stock. No customers of
+  // its own yet — a shop registers with it the first time it orders.
+  await db.tenants.add({
+    id: TENANT2,
+    name: 'Manakamana Traders Pvt. Ltd.',
+    pan: '302233445',
+    address: 'Thimi-7, Bhaktapur',
+    phone: '01-6634567',
+    vatRegistered: true,
+    categories: SEGMENTS2.map((x) => x.name),
+  });
+  await db.users.add({ id: 'u2-owner', tenantId: TENANT2, name: 'Deepak Shrestha', phone: '9851200088', role: 'owner', prefix: 'A' });
+  const stamp2 = { tenantId: TENANT2, updatedAt: now, updatedByDevice: deviceId };
+  await db.segments.bulkAdd(SEGMENTS2.map((x) => ({ ...x, ...stamp2 })));
+  await db.products.bulkAdd(PRODUCTS2.map((x) => ({ ...x, ...stamp2 })));
+  await db.stockEvents.bulkAdd(
+    PRODUCTS2.map((x) => ({
+      id: uid(), tenantId: TENANT2, productId: x.id, delta: 200,
+      reason: 'received' as const, occurredAt: now - 4 * DAY, createdBy: 'u2-owner',
+    })),
+  );
+
+  await setMeta('seedVersion', SEED_VERSION);
   await setMeta('activeTenantId', TENANT);
   await setMeta('activeUserId', 'u-ramesh');
   await setMeta('activeCustomerId', 'c-shyam');
+  await setMeta('shopPhone', CUSTOMERS[0].phone);
+  await setMeta('customerTenantId', TENANT);
+  void HOUR;
 }
 
 export async function resetAll() {

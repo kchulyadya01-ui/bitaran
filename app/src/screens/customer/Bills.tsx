@@ -1,20 +1,23 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../lib/db';
 import { bs, money } from '../../lib/domain';
-import { useActiveCustomer } from '../../lib/hooks';
+import { useShopRows } from '../../lib/hooks';
 import { Receipt, Check, Download } from '../../ui/icons';
 
 const DAY = 86_400_000;
 
 export default function Bills() {
-  const customer = useActiveCustomer();
+  const shopRows = useShopRows();
 
   const data = useLiveQuery(async () => {
-    if (!customer) return null;
-    const [invoices, payments] = await Promise.all([
-      db.invoices.where('customerId').equals(customer.id).toArray(),
-      db.payments.where('customerId').equals(customer.id).toArray(),
+    if (!shopRows.length) return null;
+    const ids = shopRows.map((r) => r.id);
+    const [invoices, payments, tenants] = await Promise.all([
+      db.invoices.where('customerId').anyOf(ids).toArray(),
+      db.payments.where('customerId').anyOf(ids).toArray(),
+      db.tenants.toArray(),
     ]);
+    const supplierName = Object.fromEntries(tenants.map((t) => [t.id, t.name.replace(' Pvt. Ltd.', '')]));
     const paidByInvoice = new Set(payments.map((p) => p.invoiceId).filter(Boolean) as string[]);
     const issued = invoices.filter((i) => i.status === 'issued').sort((a, b) => b.issuedAt - a.issuedAt);
     const unpaid = issued.filter((i) => i.paymentType === 'credit' && !paidByInvoice.has(i.id));
@@ -23,14 +26,11 @@ export default function Bills() {
       - payments.filter((p) => !p.invoiceId).reduce((s, p) => s + p.amount, 0);
     const oldest = unpaid.length ? Math.min(...unpaid.map((i) => i.issuedAt)) : undefined;
     return {
-      unpaid, paid,
+      unpaid, paid, supplierName,
       due: Math.max(0, due),
       days: oldest ? Math.floor((Date.now() - oldest) / DAY) : 0,
-      lineCounts: Object.fromEntries(
-        await Promise.all(issued.map(async (i) => [i.id, await db.invoiceLines.where('invoiceId').equals(i.id).count()] as const)),
-      ) as Record<string, number>,
     };
-  }, [customer?.id]);
+  }, [shopRows.map((r) => r.id).join(',')]);
 
   return (
     <>
@@ -72,7 +72,7 @@ export default function Bills() {
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
                 <span style={{ fontSize: 13.5, fontWeight: 600 }}>{i.number}</span>
-                <span style={{ fontSize: 11.5, color: 'var(--c-muted)' }}>{bs(i.issuedAt).dayMonth} · {data!.lineCounts[i.id]} items</span>
+                <span style={{ fontSize: 11.5, color: 'var(--c-muted)' }}>{data!.supplierName[i.tenantId]} · {bs(i.issuedAt).dayMonth}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
                 <span className="disp" style={{ fontSize: 17, fontWeight: 600 }}>{money(i.total)}</span>
@@ -91,7 +91,7 @@ export default function Bills() {
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
                 <span style={{ fontSize: 13.5, fontWeight: 600 }}>{i.number}</span>
-                <span style={{ fontSize: 11.5, color: 'var(--c-muted)' }}>{bs(i.issuedAt).dayMonth} · {i.paymentType}</span>
+                <span style={{ fontSize: 11.5, color: 'var(--c-muted)' }}>{data!.supplierName[i.tenantId]} · {bs(i.issuedAt).dayMonth} · {i.paymentType}</span>
               </div>
               <span className="disp" style={{ fontSize: 17, fontWeight: 600, color: 'var(--c-muted)' }}>{money(i.total)}</span>
             </div>

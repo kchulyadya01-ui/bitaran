@@ -339,7 +339,8 @@ export async function placeOrder(opts: {
   tenantId: string;
   customerId: string;
   lines: { productId: string; qty: number }[];
-  wantedOn?: string;
+  deliverBy?: number;
+  deliverWindow?: string;
   note?: string;
 }) {
   const now = Date.now();
@@ -347,7 +348,7 @@ export async function placeOrder(opts: {
   await db.transaction('rw', [db.orders, db.orderLines, db.orderEvents, db.outbox], async () => {
     await db.orders.add({
       id: orderId, tenantId: opts.tenantId, customerId: opts.customerId,
-      placedAt: now, wantedOn: opts.wantedOn, note: opts.note,
+      placedAt: now, deliverBy: opts.deliverBy, deliverWindow: opts.deliverWindow, note: opts.note,
     });
     await db.orderLines.bulkAdd(
       opts.lines.filter((l) => l.qty > 0).map((l) => ({ id: uid(), orderId, productId: l.productId, qty: l.qty })),
@@ -356,6 +357,165 @@ export async function placeOrder(opts: {
     await db.outbox.add({ id: uid(), entity: 'order', op: 'insert', payload: { orderId }, createdAt: now, attempts: 0 });
   });
   return orderId;
+}
+
+/** Dealers group their own catalog — usually by supplying company. */
+export async function addSegment(tenantId: string, name: string) {
+  const deviceId = (await getMeta<string>('deviceId'))!;
+  const existing = await db.segments.where('tenantId').equals(tenantId).toArray();
+  const clash = existing.find((s) => s.name.trim().toLowerCase() === name.trim().toLowerCase());
+  if (clash) return clash.id;
+  const id = uid();
+  const row = {
+    id, tenantId, name: name.trim(),
+    sortOrder: existing.length ? Math.max(...existing.map((s) => s.sortOrder)) + 1 : 1,
+    updatedAt: Date.now(), updatedByDevice: deviceId,
+  };
+  await db.segments.add(row);
+  await enqueue('segment', 'insert', row);
+  await audit('add_segment', 'segment', id, row);
+  return id;
+}
+
+export async function renameSegment(segmentId: string, name: string) {
+  const deviceId = (await getMeta<string>('deviceId'))!;
+  const seg = await db.segments.get(segmentId);
+  if (!seg || seg.name === name.trim() || !name.trim()) return;
+  const now = Date.now();
+  await db.transaction('rw', [db.segments, db.fieldHistory, db.outbox], async () => {
+    await db.fieldHistory.add({
+      id: uid(), entity: 'segment', entityId: segmentId, field: 'name',
+      oldValue: seg.name, newValue: name.trim(), changedAt: now, changedByDevice: deviceId,
+    });
+    await db.segments.put({ ...seg, name: name.trim(), updatedAt: now, updatedByDevice: deviceId });
+    await db.outbox.add({ id: uid(), entity: 'segment', op: 'update', payload: { segmentId, name: name.trim() }, createdAt: now, attempts: 0 });
+  });
+}
+
+export async function addProduct(opts: {
+  tenantId: string;
+  segmentId: string;
+  name: string;
+  unit: string;
+  price: number;
+  lowStockAt: number;
+  openingStock: number;
+}) {
+  const deviceId = (await getMeta<string>('deviceId'))!;
+  const userId = (await getMeta<string>('activeUserId'))!;
+  const id = uid();
+  const now = Date.now();
+  const row = {
+    id, tenantId: opts.tenantId, segmentId: opts.segmentId, name: opts.name.trim(),
+    unit: opts.unit.trim() || 'pc', price: opts.price, lowStockAt: opts.lowStockAt,
+    updatedAt: now, updatedByDevice: deviceId,
+  };
+  await db.transaction('rw', [db.products, db.stockEvents, db.outbox, db.auditLog], async () => {
+    await db.products.add(row);
+    if (opts.openingStock > 0) {
+      await db.stockEvents.add({
+        id: uid(), tenantId: opts.tenantId, productId: id, delta: opts.openingStock,
+        reason: 'adjustment', occurredAt: now, createdBy: userId,
+      });
+    }
+    await db.outbox.add({ id: uid(), entity: 'product', op: 'insert', payload: row, createdAt: now, attempts: 0 });
+    await db.auditLog.add({
+      id: uid(), tenantId: opts.tenantId, userId, deviceId,
+      action: 'add_product', entity: 'product', entityId: id, after: row, deviceTime: now,
+    });
+  });
+  return id;
+}
+
+export async function addCustomer(opts: {
+  tenantId: string;
+  shopName: string;
+  contactName: string;
+  phone: string;
+  pan: string;
+  address: string;
+  lat?: number;
+  lng?: number;
+}) {
+  const deviceId = (await getMeta<string>('deviceId'))!;
+  const id = uid();
+  const now = Date.now();
+  const row = {
+    id,
+    tenantId: opts.tenantId,
+    shopName: opts.shopName.trim(),
+    contactName: opts.contactName.trim(),
+    phone: opts.phone.trim(),
+    pan: opts.pan.trim(),
+    address: opts.address.trim(),
+    // 0,0 means "not pinned yet" - the route screen skips those rather than
+    // dropping the shop in the Gulf of Guinea.
+    lat: opts.lat ?? 0,
+    lng: opts.lng ?? 0,
+    updatedAt: now,
+    updatedByDevice: deviceId,
+  };
+  await db.customers.add(row);
+  await enqueue('customer', 'insert', row);
+  await audit('add_customer', 'customer', id, row);
+  return row;
+}
+
+/**
+ * A shop is one business but a separate customer row per supplier it buys from.
+ * Switching supplier finds that row, or registers the shop with the new supplier.
+ */
+export async function resolveCustomerForTenant(tenantId: string, phone: string) {
+  const inTenant = await db.customers.where('tenantId').equals(tenantId).toArray();
+  const found = inTenant.find((c) => c.phone === phone);
+  if (found) return found;
+  const profile = (await db.customers.toArray()).find((c) => c.phone === phone);
+  if (!profile) return undefined;
+  return addCustomer({
+    tenantId,
+    shopName: profile.shopName,
+    contactName: profile.contactName,
+    phone: profile.phone,
+    pan: profile.pan,
+    address: profile.address,
+    lat: profile.lat,
+    lng: profile.lng,
+  });
+}
+
+/** Ask the phone where it is. Resolves undefined if refused or unavailable. */
+export function currentPosition(): Promise<{ lat: number; lng: number } | undefined> {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) return resolve(undefined);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => resolve(undefined),
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60_000 },
+    );
+  });
+}
+
+/** Nepal reads times as 5 pm, not 17:00 - keep every screen on one clock. */
+export function clock(at: number) {
+  return new Date(at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
+}
+
+/** How a delivery deadline reads on a card: "in 3 h", "today by 5 pm", "2 h late". */
+export function dueLabel(deliverBy?: number) {
+  if (!deliverBy) return { text: 'no time set', tone: 'muted' as const };
+  const diff = deliverBy - Date.now();
+  const hours = diff / 3_600_000;
+  const time = clock(deliverBy);
+  if (diff < 0) {
+    const late = Math.abs(hours);
+    return { text: late < 1 ? 'late' : `${Math.floor(late)} h late`, tone: 'bad' as const };
+  }
+  if (hours < 1) return { text: `within ${Math.max(1, Math.round(diff / 60_000))} min`, tone: 'bad' as const };
+  if (hours < 12) return { text: `within ${Math.floor(hours)} h · by ${time}`, tone: 'warn' as const };
+  const day = new Date(deliverBy);
+  const today = new Date(); today.setHours(23, 59, 59, 999);
+  const word = day.getTime() <= today.getTime() ? 'today' : bs(deliverBy).dayMonth;
+  return { text: `${word} by ${time}`, tone: 'muted' as const };
 }
 
 export { getMeta, setMeta };
