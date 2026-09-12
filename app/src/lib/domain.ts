@@ -31,8 +31,6 @@ export function money(n: number, withPaisa = false): string {
   return neg ? `-${out}` : out;
 }
 
-export const rs = (n: number, withPaisa = false) => `Rs ${money(n, withPaisa)}`;
-
 export function vatOf(subtotal: number) {
   return Math.round(subtotal * VAT_RATE * 100) / 100;
 }
@@ -70,16 +68,6 @@ export async function allStock(tenantId: string): Promise<Record<string, number>
   return out;
 }
 
-export async function balanceOf(customerId: string): Promise<number> {
-  const invoices = await db.invoices.where('customerId').equals(customerId).toArray();
-  const payments = await db.payments.where('customerId').equals(customerId).toArray();
-  const billed = invoices
-    .filter((i) => i.status === 'issued' && i.paymentType === 'credit')
-    .reduce((s, i) => s + i.total, 0);
-  const paid = payments.reduce((s, p) => s + p.amount, 0);
-  return Math.round((billed - paid) * 100) / 100;
-}
-
 export async function allBalances(tenantId: string): Promise<Record<string, { due: number; oldest?: number; bills: number }>> {
   const invoices = await db.invoices.where('tenantId').equals(tenantId).toArray();
   const payments = await db.payments.where('tenantId').equals(tenantId).toArray();
@@ -107,14 +95,6 @@ export function resolveStatus(events: OrderEvent[]): OrderStatus {
   }
   return best;
 }
-
-export const STATUS_LABEL: Record<OrderStatus, string> = {
-  placed: 'New',
-  confirmed: 'Confirmed',
-  out_for_delivery: 'On van',
-  delivered: 'Delivered',
-  cancelled: 'Cancelled',
-};
 
 // --- Invoice numbering -------------------------------------------------------
 
@@ -563,11 +543,6 @@ export function clock(at: number) {
 /** Date and time together, the way a bill or an order is stamped: "Bhadra 26 · 4:35 pm". */
 export function stamp(at: number) {
   return `${bs(at).dayMonth} · ${clock(at)}`;
-}
-
-/** The same stamp on the invoice face, where the numeric BS date is the legal one. */
-export function stampFull(at: number) {
-  return `${bs(at).ymd} · ${clock(at)}`;
 }
 
 /** How a delivery deadline reads on a card: "in 3 h", "today by 5 pm", "2 h late". */

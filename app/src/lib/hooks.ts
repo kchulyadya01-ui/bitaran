@@ -64,13 +64,6 @@ export function useShopRow() {
   }, []);
 }
 
-export function useActiveCustomer() {
-  return useLiveQuery(async () => {
-    const id = await getMeta<string>('activeCustomerId');
-    return id ? await db.customers.get(id) : undefined;
-  }, []);
-}
-
 export function useTenant() {
   return useLiveQuery(async () => {
     const id = await getMeta<string>('activeTenantId');
